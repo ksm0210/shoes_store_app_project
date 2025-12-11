@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/customer.dart';
+import 'package:shoes_store_app_project/vm/customer_handler.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -10,29 +12,33 @@ class Signup extends StatefulWidget {
 
 class _SignupState extends State<Signup> {
   //Property
-  late bool pwdMatch;  // 비밀번호 확인을 눌러서 확인받아야 회원가입넘어감
+  late bool checkEmail; // 중복확인에 따라 바뀜
+  late String checkDuplicate; // 중복확인에따라 text바뀜
+  late CustomerHandler handler; // customer DB
+  late bool pwdMatch; // 비밀번호 확인을 눌러서 확인받아야 회원가입넘어감
   late TextEditingController emailController; // 이메일 textfield
   late TextEditingController passwordController; // 비밀번호 textfield
   late TextEditingController reEnterpasswordController; // 비밀번호 재입력 textfield
   late TextEditingController nameController; // 이메일 textfield
-  late TextEditingController phoneController; // 휴대전화 textfield
   late bool agree;
 
   @override
   void initState() {
     super.initState();
+    checkEmail = false;
+    checkDuplicate = '중복확인';
+    handler = CustomerHandler();
     pwdMatch = false;
     emailController = TextEditingController();
     passwordController = TextEditingController();
     reEnterpasswordController = TextEditingController();
     nameController = TextEditingController();
-    phoneController = TextEditingController();
     agree = false;
   }
 
   @override
   Widget build(BuildContext context) {
-     const navy = Color(0xFF0B1220); // 버튼 색 느낌
+    const navy = Color(0xFF0B1220); // 버튼 색 느낌
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -59,10 +65,7 @@ class _SignupState extends State<Signup> {
                     SizedBox(height: 12),
                     Text(
                       'ShoesHouse의 멤버가 되어보세요.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -71,12 +74,36 @@ class _SignupState extends State<Signup> {
               const SizedBox(height: 48),
 
               // 이메일
-              const Text(
-                '이메일 주소',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
+              Row(
+                children: [
+                  const Text(
+                    '이메일 주소',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      checkEmailDuplicate();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      backgroundColor: const Color(0xFFF3E9FF), // 연보라색 배경
+                      foregroundColor: const Color(0xFF7B4CFF), // 보라 텍스트
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(999), // 동글동글 pill
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    child: Text(checkDuplicate),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               _BuildField(
@@ -88,32 +115,30 @@ class _SignupState extends State<Signup> {
               const SizedBox(height: 20),
 
               // 비밀번호 & 비밀번호 확인 (2열)
-               Row(
+              Row(
                 children: [
                   Text(
                     '비밀번호',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                   Spacer(),
                   TextButton(
                     onPressed: () {
-                      if (passwordController.text.trim() == reEnterpasswordController.text.trim() &&
-                          passwordController.text.trim().isNotEmpty || reEnterpasswordController.text.trim().isNotEmpty
-                      ) {
+                      if (passwordController.text.trim().isNotEmpty &&
+                          reEnterpasswordController.text.trim().isNotEmpty &&
+                          passwordController.text.trim() ==
+                              reEnterpasswordController.text.trim()) {
                         showpasswordMatchDialog(context);
-                      }else{
+                      } else {
                         showpasswordNotMatchDialog(context);
                       }
-                    }, 
+                    },
                     child: Text(
                       '비밀번호 확인',
                       style: TextStyle(
                         color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -145,33 +170,10 @@ class _SignupState extends State<Signup> {
               // 이름
               const Text(
                 '이름',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
-               _BuildField(
-                controller: nameController,
-                hint: '홍길동',
-              ),
-
-              const SizedBox(height: 20),
-
-              // 휴대폰 번호
-              const Text(
-                '휴대폰 번호',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _BuildField(
-                controller: phoneController,
-                hint: '010-0000-0000',
-                keyboardType: TextInputType.phone,
-              ),
+              _BuildField(controller: nameController, hint: '홍길동'),
 
               const SizedBox(height: 24),
 
@@ -189,8 +191,11 @@ class _SignupState extends State<Signup> {
                         color: agree ? navy : Colors.white,
                       ),
                       child: agree
-                          ? const Icon(Icons.check,
-                              size: 14, color: Colors.white)
+                          ? const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: Colors.white,
+                            )
                           : null,
                     ),
                   ),
@@ -233,21 +238,41 @@ class _SignupState extends State<Signup> {
                   onPressed: agree
                       ? () {
                           if (emailController.text.trim().isEmpty ||
-                              passwordController.text.trim().isEmpty||
-                              reEnterpasswordController.text.trim().isEmpty||
-                              nameController.text.trim().isEmpty||
-                              phoneController.text.trim().isEmpty||
-                              pwdMatch == false) {
-                                // showdialog
+                              nameController.text.trim().isEmpty ||
+                              passwordController.text.trim().isEmpty ||
+                              reEnterpasswordController.text.trim().isEmpty ||
+                              pwdMatch == false ||
+                              checkEmail == false) {
+                            Get.snackbar(
+                              "회원가입이 불가능합니다.",
+                              "입력 정보를 다시 확인해주세요.",
+                              duration: Duration(seconds: 2),
+                              backgroundColor: Colors.red,
+                              colorText: Colors.black,
+                            );
+                          } else {
+                            Get.defaultDialog(
+                              title: "회원가입완료",
+                              middleText: "ShoesHouse의 회원이 되신 걸 환영합니다!",
+                              barrierDismissible: false,
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    insertSignUp();
+
+                                    Get.back();
+                                    Get.back();
+                                  },
+                                  child: Text('확인'),
+                                ),
+                              ],
+                            );
                           }
                         }
                       : null, // 동의 안 했으면 비활성화
                   child: const Text(
                     '회원가입',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -261,10 +286,7 @@ class _SignupState extends State<Signup> {
                   children: [
                     const Text(
                       '이미 계정이 있으신가요? ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -290,84 +312,215 @@ class _SignupState extends State<Signup> {
       ),
     );
   } // build
+
   //-----functions-----
 
-  // password가 일치할때
-showpasswordMatchDialog(BuildContext context){
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          "비밀번호 확인 완료",
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        content: const Text(
-          "비밀번호가 서로 일치합니다.\n회원가입을 계속 진행해 주세요.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              pwdMatch = true;
-              Get.back();
-            },
-            child: const Text("확인"),
-          ),
-        ],
-      );
-    },
-  );
+  // 이메일형식인지 아닌지 확인
+  bool isEmailValid(String email) {
+  return RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email);
 }
-// password가 일치하지않을때
-showpasswordNotMatchDialog(BuildContext context){
-  showDialog(
-    context: context,
+
+  // 중복체크완료 dialog
+showEmailCheckSuccessDialog() {
+  Get.defaultDialog(
+    title: "",
     barrierDismissible: false,
-    builder: (_) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+    backgroundColor: Colors.white,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+    radius: 20,
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 초록 체크 아이콘
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.12),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check_rounded,
+            color: Colors.green,
+            size: 38,
+          ),
         ),
-        title: const Text(
-          "비밀번호가 일치하지 않습니다",
+
+        const SizedBox(height: 18),
+
+        // 제목
+        const Text(
+          "사용 가능한 이메일입니다",
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.redAccent,
           ),
         ),
-        content: const Text(
-          "입력하신 비밀번호와 비밀번호 확인이 서로 다릅니다.\n"
-          "다시 한 번 확인 후 입력해 주세요.",
+
+        const SizedBox(height: 8),
+
+        // 설명
+        const Text(
+          "회원가입을 계속 진행해주세요.",
+          textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 12
+            color: Colors.black54,
+            fontSize: 14,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              passwordController.clear();
-              reEnterpasswordController.clear();
-              Get.back();
-              // TODO: 필요하면 여기에서 비밀번호 확인 필드에 포커스 이동
-            },
-            child: const Text("다시 입력"),
+
+        const SizedBox(height: 24),
+
+        // 확인 버튼
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => Get.back(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black87,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: const Text(
+              "확인",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
           ),
-        ],
-      );
-    },
+        ),
+      ],
+    ),
   );
 }
 
+  // 이메일 주소 중복확인부분
+  checkEmailDuplicate() async{
+      // 1) 비어있는지 먼저 체크
+  if (emailController.text.trim().isEmpty) {
+    Get.snackbar(
+      "이메일을 입력해주세요",
+      "중복확인을 하기 전에 이메일을 먼저 입력해주세요.",
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
+  }
+
+  // 2) 이메일 형식이 올바른지 체크
+  if (!isEmailValid(emailController.text.trim())) {
+    Get.snackbar(
+      "올바르지 않은 이메일 형식",
+      "이메일 주소 형식을 다시 확인해주세요.",
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return;
+  }
+    int result = await handler.queryCheckCustomerId(emailController.text.trim());
+    if (result == 0) {
+      showEmailCheckSuccessDialog();
+      checkDuplicate = '중복확인완료';
+      checkEmail = true;
+      setState(() {});
+    }else{
+      Get.snackbar(
+      "이미 사용 중인 이메일입니다",
+      "다른 이메일 주소로 다시 시도해주세요 ",
+      snackPosition: SnackPosition.BOTTOM,   // snackbar 위치이동(TOP, BOTTOM)
+      duration: Duration(seconds: 2),
+      backgroundColor: Colors.red,
+      colorText: Colors.black              // snackbar는 bold가 기본이다.
+    );
+    emailController.clear();
+    }
+  }
+
+  // 회원가입할때 Insert부분
+  insertSignUp() async {
+    Customer user = Customer(
+      customer_password: passwordController.text.trim(),
+      customer_name: nameController.text.trim(),
+      customer_email: emailController.text.trim(),
+    );
+    await handler.insert(user);
+  }
+
+  // password가 일치할때
+  showpasswordMatchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "비밀번호 확인 완료",
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+          content: const Text("비밀번호가 서로 일치합니다.\n회원가입을 계속 진행해 주세요."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                pwdMatch = true;
+                setState(() {});
+                Get.back();
+              },
+              child: const Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // password가 일치하지않을때
+  showpasswordNotMatchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "비밀번호가 일치하지 않습니다",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.redAccent,
+            ),
+          ),
+          content: const Text(
+            "입력하신 비밀번호와 비밀번호 확인이 서로 다릅니다.\n"
+            "다시 한 번 확인 후 입력해 주세요.",
+            style: TextStyle(fontSize: 12),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                passwordController.clear();
+                reEnterpasswordController.clear();
+                Get.back();
+                // TODO: 필요하면 여기에서 비밀번호 확인 필드에 포커스 이동
+              },
+              child: const Text("다시 입력"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 } // class
-
-
-
-
 
 /// 공통 입력 필드 위젯 (회색 배경 + 둥근 모서리)
 class _BuildField extends StatelessWidget {
@@ -391,13 +544,13 @@ class _BuildField extends StatelessWidget {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(
-          color: Colors.grey.shade500,
-        ),
+        hintStyle: TextStyle(color: Colors.grey.shade500),
         filled: true,
         fillColor: const Color(0xFFF4F5F7),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,

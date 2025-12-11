@@ -50,4 +50,32 @@ class CustomerHandler {
       cust.customer_id
       ]);
   }
+
+    // ID,PWD DB에 있는지 확인 Query
+    Future<int> loginSelectQuery(String id, String pwd) async {
+    Database db = await Initialize.initDatabase();
+    final data = await db.rawQuery(
+      '''
+      select count(customer_id) as cnt from customers
+      where customer_email = ? and customer_password = ?
+      ''',
+      [id,pwd]
+      );
+      int count = data.first['cnt'] as int;
+      return count;
+  }
+
+  // 아이디가 중복인지 확인
+  Future<int> queryCheckCustomerId(String id) async{
+    Database db = await Initialize.initDatabase();
+    final List<Map<String, Object?>> queryCheckResults = await db.rawQuery(
+      """
+      select count(customer_id) as cnt from customers
+      where customer_email = ?
+      """,
+      [id]
+    );
+    int count = queryCheckResults.first["cnt"] as int;
+    return count;
+  }
 }

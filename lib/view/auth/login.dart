@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/customer.dart';
 import 'package:shoes_store_app_project/view/auth/signup.dart';
+import 'package:shoes_store_app_project/vm/customer_handler.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -11,19 +13,22 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   // Property
-  late int value;         // customer text 투명도
+  late CustomerHandler handler;
+  late int value; // customer text 투명도
   late bool manager2Visible; // Visible value
-  late TextEditingController idController;  // customer id 적는 textfield
+  late TextEditingController idController; // customer id 적는 textfield
   late TextEditingController pwdController; // customer password 적는 textfield
 
   @override
   void initState() {
     super.initState();
+    handler = CustomerHandler();
     value = 20;
     manager2Visible = false;
     idController = TextEditingController();
     pwdController = TextEditingController();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +106,25 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () async {
+                      int result = await handler.loginSelectQuery(
+                        idController.text.trim(),
+                        pwdController.text.trim(),
+                      );
+                      if (result == 1) {
+                        // 여기가 로그인 들어왔을때
+                      } else {
+                        Get.snackbar(
+                          "경고",
+                          "아이디, 비밀번호가 틀립니다\n다시입력해주세요",
+                          snackPosition: SnackPosition
+                              .TOP, // snackbar 위치이동(TOP, BOTTOM)
+                          duration: Duration(seconds: 2),
+                          backgroundColor: Colors.red,
+                          colorText: Colors.black, // snackbar는 bold가 기본이다.
+                        );
+                      }
+                    },
                     child: const Text(
                       "로그인",
                       style: TextStyle(
@@ -121,9 +144,7 @@ class _LoginState extends State<Login> {
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () {
-                        Get.to(
-                          Signup()
-                        );
+                        Get.to(Signup());
                       },
                       child: const Text(
                         "회원가입",
@@ -142,38 +163,41 @@ class _LoginState extends State<Login> {
                   child: TextButton(
                     onPressed: () {
                       // 관리자 웹으로넘어가는곳
-                    }, 
+                    },
                     child: Text(
                       '관리자이신가요?',
-                    style: TextStyle(
-                      fontSize: 13,
-                      decoration: TextDecoration.underline
+                      style: TextStyle(
+                        fontSize: 13,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
-                    )
-                  )
+                  ),
                 ),
                 const SizedBox(height: 30),
                 GestureDetector(
                   onDoubleTap: () {
-                    manager2Visible == false ? manager2Visible=true : manager2Visible=false;
+                    manager2Visible == false
+                        ? manager2Visible = true
+                        : manager2Visible = false;
                     setState(() {});
                   },
                   child: Align(
                     alignment: Alignment.bottomRight,
-                    child: Text(  // 이거 text누르면 관리자 text나옴
+                    child: Text(
+                      // 이거 text누르면 관리자 text나옴
                       '...',
                       style: TextStyle(
                         fontSize: 25,
-                        color: Colors.grey.withAlpha(value)
+                        color: Colors.grey.withAlpha(value),
                       ),
-                    )
+                    ),
                   ),
-                )
+                ),
               ],
             ),
           ),
         ),
       ),
     );
-  }
-}
+  } // build
+} // class
