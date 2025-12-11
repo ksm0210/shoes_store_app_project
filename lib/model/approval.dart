@@ -8,7 +8,7 @@ class Approval {
   DateTime created_at;
 
   Approval({
-    this.approval_id,
+
     required this.employee_id,
     required this.approval_type,
     required this.approval_status,
@@ -17,10 +17,10 @@ class Approval {
   });
 
   Approval.fromMap(Map<String, dynamic> res)
-      : approval_id = res['approval_id'],
+      : 
         employee_id = res['employee_id'],
         approval_type = res['approval_type'],
         approval_status = res['approval_status'],
         approval_content = res['approval_content'],
-        created_at = DateTime.parse(res['created_at']);
+        created_at = DateTime.now();
 }

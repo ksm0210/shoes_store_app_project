@@ -9,7 +9,7 @@ class Order {
   DateTime created_at;
 
   Order({
-    this.order_id,
+
     required this.customer_id,
     required this.product_id,
     required this.order_store_id,
@@ -20,12 +20,12 @@ class Order {
   });
 
   Order.fromMap(Map<String, dynamic> res)
-      : order_id = res['order_id'],
+      :
         customer_id = res['customer_id'],
         product_id = res['product_id'],
         order_store_id = res['order_store_id'],
         order_quantity = res['order_quantity'],
         order_total_price = res['order_total_price'],
         order_status = res['order_status'],
-        created_at = DateTime.parse(res['created_at']);
+        created_at = DateTime.now();
 }

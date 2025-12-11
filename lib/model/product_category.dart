@@ -5,13 +5,12 @@ class ProductCategory {
   DateTime created_at;
 
   ProductCategory({
-    this.category_id,
     required this.category_name,
     required this.created_at,
   });
 
   ProductCategory.fromMap(Map<String, dynamic> res)
-      : category_id = res['category_id'],
+      : 
         category_name = res['category_name'],
-        created_at = DateTime.parse(res['created_at']);
+        created_at = DateTime.now();
 }

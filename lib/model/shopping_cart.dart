@@ -7,7 +7,6 @@ class ShoppingCart {
 
 
   ShoppingCart({
-    this.cart_seq_id,
     required this.customer_id,
     required this.product_id
   });
