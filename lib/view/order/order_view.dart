@@ -23,18 +23,18 @@ class _OrderViewState extends State<OrderView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    initxx();
+    // initxx();
   } 
 
-  initxx() async{
-        CustomerHandler customerHandler = CustomerHandler();
+  // initxx() async{
+  //   CustomerHandler customerHandler = CustomerHandler();
     
-    // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Obama', created_at: DateTime.now()));
-    // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Bill Gates', created_at: DateTime.now()));
+  //   // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Obama', created_at: DateTime.now()));
+  //   // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Bill Gates', created_at: DateTime.now()));
 
-    List<Customer> cc = await customerHandler.selectQuery();
-    print('${cc[0].created_at}');
-  }
+  //   List<Customer> cc = await customerHandler.selectQuery();
+  //   print('${cc[0].created_at}');
+  // }
 
 
   @override
