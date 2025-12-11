@@ -14,7 +14,6 @@ class Product{
   DateTime created_at;
 
   Product({
-        this.product_id, 
     required this.store_id,
     required this.product_name,
     this.product_description,
@@ -28,7 +27,7 @@ class Product{
   });
 
   Product.fromMap(Map<String,dynamic> json) : 
-  product_id = json['product_id'],
+
   store_id = json['store_id'],
   product_name = json['product_name'],
   product_description = json['product_description'],
@@ -37,6 +36,6 @@ class Product{
   product_size = json['prouect_size'],
   product_price = json['prouect_price'],
   product_quantity = json['prouect_quantity'],
-  product_released_date = json['product_released_date'],
+  product_released_date = DateTime.parse(json['product_released_date']),
   created_at = DateTime.now();
 }
