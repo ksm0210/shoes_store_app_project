@@ -36,6 +36,6 @@ class Product{
   product_size = json['prouect_size'],
   product_price = json['prouect_price'],
   product_quantity = json['prouect_quantity'],
-  product_released_date = json['product_released_date'],
+  product_released_date = DateTime.parse(json['product_released_date']),
   created_at = DateTime.now();
 }

@@ -1,21 +1,18 @@
-
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class Initialize {
-
   createDatabase() async {
-Future<Database> initDatabase() async {
-    String path = await getDatabasesPath();
-    return openDatabase(
-      join(path, 'shoesproject.db'),
+    Future<Database> initDatabase() async {
+      String path = await getDatabasesPath();
+      return openDatabase(
+        join(path, 'shoesproject.db'),
 
-      
-      onCreate: (db, version) async {
-        // == Product table
-        await db.execute("""
-          create table product (
+        onCreate: (db, version) async {
+          // == Product table
+          await db.execute("""
+          create table products (
             product_id integer primary key autoincrement,
             product_name text,
             product_description text,
@@ -30,40 +27,111 @@ Future<Database> initDatabase() async {
             isDeleted integer default 0
           )
         """);
-        // customer table
-        
-        await db.execute("""
+          // customer table
+
+          await db.execute("""
+
           CREATE TABLE Customers (
             customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
             customer_password TEXT NOT NULL,
             customer_name TEXT NOT NULL,
-            customer_email TEXT,
-            customer_lat real,
-            customer_lng real,
-            customer_city TEXT,
-            customer_state TEXT,
+            customer_email TEXT, 
+            customer_lat REAL,  
+            customer_lng REAL,   
+            customer_city TEXT,  
+            customer_state TEXT, 
             created_at TEXT NOT NULL
           )
         """);
 
-        await db.execute("""
+          await db.execute("""
          CREATE TABLE Employees (
-  employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  employee_password TEXT NOT NULL,
-  employee_type TEXT NOT NULL,
-  employee_name TEXT NOT NULL,
-  employee_address TEXT,
-  employee_email TEXT,
-  employee_phone TEXT,
-  manager_id TEXT NOT NULL, -- manager_id의 Dart 타입이 String이므로 TEXT로 지정합니다.
-  created_at TEXT NOT NULL
-)
+          employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          employee_password TEXT NOT NULL,
+          employee_type TEXT NOT NULL,
+          employee_name TEXT NOT NULL,
+          employee_address TEXT,
+          employee_email TEXT, 
+          employee_phone TEXT, 
+          manager_id INTEGER, 
+          created_at TEXT NOT NULL
+        )
         """);
-      },
-      version: 1,
-    );
-  }
 
-  }
+          await db.execute("""
+         CREATE TABLE Manufactures (
+          manufacture_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          manufacture_name TEXT NOT NULL,
+          manufacture_address TEXT,   
+          manufacture_contact TEXT,
+          business_number TEXT, 
+          created_at TEXT NOT NULL
+        )
+        """);
 
+          await db.execute("""
+        CREATE TABLE Orders (
+          order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          customer_id INTEGER NOT NULL,
+          product_id INTEGER NOT NULL,
+          order_store_id INTEGER NOT NULL,
+          order_quantity INTEGER NOT NULL,
+          order_total_price INTEGER NOT NULL,
+          order_status TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+        )
+        """);
+
+          /*
+        -- 외래 키 제약 조건 (선택 사항, 필요시 추가)
+          -- FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+          -- FOREIGN KEY (product_id) REFERENCES Products(product_id),
+          -- FOREIGN KEY (order_store_id) REFERENCES Stores(store_id)
+        */
+
+          await db.execute("""
+       CREATE TABLE ProductCategories (
+          category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          category_name TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        )
+        """);
+          await db.execute("""
+      CREATE TABLE Reviews (
+        review_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        review_rating INTEGER NOT NULL, 
+        review_content TEXT,            
+        created_at TEXT NOT NULL,
+
+        FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+        FOREIGN KEY (product_id) REFERENCES Products(product_id)
+      )
+        """);
+
+          await db.execute("""
+      
+        CREATE TABLE ShoppingCarts (
+          cart_seq_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          customer_id INTEGER NOT NULL,
+          product_id INTEGER NOT NULL,
+          created_at TEXT NOT NULL,
+        )
+        """);
+
+          await db.execute("""
+        CREATE TABLE Wishes (
+          wish_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          customer_id INTEGER NOT NULL,
+          product_id INTEGER NOT NULL,
+          created_at TEXT NOT NULL,
+          UNIQUE(customer_id, product_id)
+        )
+        """);
+        },
+        version: 1,
+      );
+    }
+  }
 }
