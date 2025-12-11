@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/customer.dart';
 import 'package:shoes_store_app_project/view/auth/signup.dart';
+import 'package:shoes_store_app_project/view/home.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
 
 class Login extends StatefulWidget {
@@ -113,6 +114,17 @@ class _LoginState extends State<Login> {
                       );
                       if (result == 1) {
                         // 여기가 로그인 들어왔을때
+                        Get.snackbar(
+                          "로그인 성공",
+                          "환영합니다!",
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                        
+                        // 로그인 성공 시 MainScreen으로 이동하며 이전 스택(로그인창)을 지웁니다.
+                        Get.offAll(() => const Home()); 
+                        
+
+
                       } else {
                         Get.snackbar(
                           "경고",
