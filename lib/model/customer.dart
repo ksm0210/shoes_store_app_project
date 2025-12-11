@@ -4,7 +4,7 @@ class Customer {
   int? customer_id;
   String customer_password;
   String customer_name;
-  String? customer_email;
+  String customer_email;
   double? customer_lat;
   double? customer_lng;
   String? customer_city;
@@ -17,7 +17,7 @@ class Customer {
 
       required this.customer_password,
       required this.customer_name,
-      this.customer_email,
+      required this.customer_email,
       this.customer_city,
       this.customer_state,
       this.customer_lat,
