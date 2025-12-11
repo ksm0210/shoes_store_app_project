@@ -1,13 +1,13 @@
 // 제조사 정보들class 
 class Manufacture {
-  final int manufacture_Id;
+  final int manufacture_id;
   final String  manufacture_name;
   final String  manufacture_address;
   final String  manufacture_phone;
   final String  manufacture_accountNumber;
 
   Manufacture({
-    required this. manufacture_Id,
+    required this. manufacture_id,
     required this. manufacture_name,
     required this. manufacture_address,
     required this. manufacture_phone,
@@ -16,7 +16,7 @@ class Manufacture {
 
   Map<String, dynamic> toMap() {
     return {
-      ' manufacture_Id':  manufacture_Id,
+      ' manufacture_id':  manufacture_id,
       ' manufacture_name':  manufacture_name,
       ' manufacture_address':  manufacture_address,
       ' manufacture_phone':  manufacture_phone,
@@ -26,7 +26,7 @@ class Manufacture {
 
   factory Manufacture.fromMap(Map<String, dynamic> map) {
     return Manufacture(
-       manufacture_Id: map[' manufacture_Id'],
+       manufacture_id: map[' manufacture_id'],
        manufacture_name: map[' manufacture_name'],
        manufacture_address: map[' manufacture_address'],
        manufacture_phone: map[' manufacture_phone'],
