@@ -29,10 +29,13 @@ class Customer {
 
     Customer.fromMap(Map<String,dynamic> res)
   : customer_id = res['customer_id'],         
+    customer_password = res['customer_password'],
     customer_name = res['customer_name'],
-    phone = res['phone'],
-    address = res['address'],
-    relation = res['relation'],
-    image = res['image'];
-}
+    customer_email = res['customer_email'],
+    customer_city = res['customer_city'],
+    customer_state = res['customer_state'],
+    customer_lat = res['customer_lat'],
+    customer_lng = res['customer_lng'],
+    created_at = DateTime.now();
+
 }
