@@ -27,5 +27,5 @@ class Order {
         order_quantity = res['order_quantity'],
         order_total_price = res['order_total_price'],
         order_status = res['order_status'],
-        created_at = DateTime.now();
+        created_at = DateTime.parse(res['created_at']);
 }

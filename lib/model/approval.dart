@@ -22,5 +22,5 @@ class Approval {
         approval_type = res['approval_type'],
         approval_status = res['approval_status'],
         approval_content = res['approval_content'],
-        created_at = DateTime.now();
+        created_at = DateTime.parse(res['created_at']);
 }

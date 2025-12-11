@@ -12,5 +12,5 @@ class ProductCategory {
   ProductCategory.fromMap(Map<String, dynamic> res)
       : 
         category_name = res['category_name'],
-        created_at = DateTime.now();
+        created_at = DateTime.parse(res['created_at']);
 }
