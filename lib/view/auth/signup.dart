@@ -100,7 +100,8 @@ class _SignupState extends State<Signup> {
                   Spacer(),
                   TextButton(
                     onPressed: () {
-                      if (passwordController.text.trim() == reEnterpasswordController.text.trim()
+                      if (passwordController.text.trim() == reEnterpasswordController.text.trim() &&
+                          passwordController.text.trim().isNotEmpty || reEnterpasswordController.text.trim().isNotEmpty
                       ) {
                         showpasswordMatchDialog(context);
                       }else{
@@ -222,7 +223,7 @@ class _SignupState extends State<Signup> {
                 height: 54,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: navy,
+                    backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
