@@ -20,5 +20,5 @@ class Review {
         product_id = res['product_id'],
         review_rating = res['review_rating'],
         review_content = res['review_content'],
-        created_at = DateTime.now();
+        created_at = DateTime.parse(res['created_at']);
 }

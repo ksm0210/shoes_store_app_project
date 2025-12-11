@@ -13,6 +13,9 @@ class Initialize {
         await db.execute("""
           create table products (
             product_id integer primary key autoincrement,
+            category_id integer not null,
+            manufacture_id integer not null,
+            store_id integer not null,
             product_name text,
             product_description text,
             gender text,
@@ -32,7 +35,7 @@ class Initialize {
             customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
             customer_password TEXT NOT NULL,
             customer_name TEXT NOT NULL,
-            customer_email TEXT, 
+            customer_email TEXT NOT NULL, 
             customer_lat REAL,  
             customer_lng REAL,   
             customer_city TEXT,  

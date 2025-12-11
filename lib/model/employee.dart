@@ -33,6 +33,6 @@ class Employee {
     employee_email = res['employee_email'],
     employee_phone = res['employee_phone'],
     manager_id = res['manager_id'],
-    created_at = DateTime.now();
+    created_at = DateTime.parse(res['created_at']);
 
 }

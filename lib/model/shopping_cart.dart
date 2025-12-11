@@ -16,5 +16,5 @@ class ShoppingCart {
   ShoppingCart.fromMap(Map<String,dynamic> json) :
   customer_id = json['customer_id'],
   product_id = json['product_id'],
-  created_at = DateTime.now();
+  created_at =DateTime.parse(json['created_at']);
 }

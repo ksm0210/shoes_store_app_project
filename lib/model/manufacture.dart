@@ -21,5 +21,5 @@ class Manufacture {
         manufacture_address = res['manufacture_address'],
         manufacture_contact = res['manufacture_contact'],
         business_number = res['business_number'],
-        created_at = DateTime.now();
+        created_at = DateTime.parse(res['created_at']);
 }

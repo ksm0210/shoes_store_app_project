@@ -36,6 +36,6 @@ class Customer {
     customer_state = res['customer_state'],
     customer_lat = res['customer_lat'],
     customer_lng = res['customer_lng'],
-    created_at = DateTime.now();
+    created_at = DateTime.parse(res['created_at']);
 
 }
