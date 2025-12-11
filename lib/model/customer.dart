@@ -9,7 +9,7 @@ class Customer {
   double? customer_lng;
   String? customer_city;
   String? customer_state;
-  DateTime created_at;
+  DateTime? created_at;
   
 
   Customer(
@@ -22,7 +22,7 @@ class Customer {
       this.customer_state,
       this.customer_lat,
       this.customer_lng,
-      required this.created_at
+      this.created_at
 
     }
   );

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shoes_store_app_project/model/customer.dart';
+import 'package:shoes_store_app_project/model/order.dart';
+import 'package:shoes_store_app_project/vm/customer_handler.dart';
+import 'package:shoes_store_app_project/vm/order_handler.dart';
 
 class OrderView extends StatefulWidget {
   const OrderView({super.key});
@@ -11,11 +15,27 @@ class _OrderViewState extends State<OrderView> {
   // Property
   int? storeId = null;
   int totalPrice = 0;
+  OrderHandler orderHandler = OrderHandler();
+  // late List<Order> orderList=[];
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    initxx();
+  } 
+
+  initxx() async{
+        CustomerHandler customerHandler = CustomerHandler();
+    
+    await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Obama', created_at: DateTime.now()));
+    await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Bill Gates', created_at: DateTime.now()));
+
+    List<Customer> cc = await customerHandler.selectQuery();
+
   }
+
 
   @override
   Widget build(BuildContext context) {

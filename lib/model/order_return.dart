@@ -1,5 +1,5 @@
 class OrderReturn {
-  int? receive_seq;
+  int? seq;
   int order_id;
   int customer_id;
   int? employee_id;
