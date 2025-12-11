@@ -1,24 +1,17 @@
 // 신발 카테고리 정보들
 class ProductCategory {
-  final int productcategory_categoryid;
-  final String productcategory_categoryName;
+  int? category_id;
+  String category_name;
+  DateTime created_at;
 
   ProductCategory({
-    required this.productcategory_categoryid,
-    required this.productcategory_categoryName,
+    this.category_id,
+    required this.category_name,
+    required this.created_at,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'productcategory_categoryid': productcategory_categoryid,
-      'productcategory_categoryName': productcategory_categoryName,
-    };
-  }
-
-  factory ProductCategory.fromMap(Map<String, dynamic> map) {
-    return ProductCategory(
-      productcategory_categoryid: map['productcategory_categoryid'],
-      productcategory_categoryName: map['productcategory_categoryName'],
-    );
-  }
+  ProductCategory.fromMap(Map<String, dynamic> res)
+      : category_id = res['category_id'],
+        category_name = res['category_name'],
+        created_at = DateTime.parse(res['created_at']);
 }
