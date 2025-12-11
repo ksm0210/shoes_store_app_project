@@ -1,36 +1,25 @@
-// 제조사 정보들class 
 class Manufacture {
-  final int manufacture_id;
-  final String  manufacture_name;
-  final String  manufacture_address;
-  final String  manufacture_phone;
-  final String  manufacture_accountNumber;
+  int? manufacture_id;
+  String manufacture_name;
+  String manufacture_address;
+  String manufacture_contact;
+  String business_number;
+  DateTime created_at;
 
   Manufacture({
-    required this. manufacture_id,
-    required this. manufacture_name,
-    required this. manufacture_address,
-    required this. manufacture_phone,
-    required this. manufacture_accountNumber,
+    this.manufacture_id,
+    required this.manufacture_name,
+    required this.manufacture_address,
+    required this.manufacture_contact,
+    required this.business_number,
+    required this.created_at,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      ' manufacture_id':  manufacture_id,
-      ' manufacture_name':  manufacture_name,
-      ' manufacture_address':  manufacture_address,
-      ' manufacture_phone':  manufacture_phone,
-      ' manufacture_accountNumber':  manufacture_accountNumber,
-    };
-  }
-
-  factory Manufacture.fromMap(Map<String, dynamic> map) {
-    return Manufacture(
-       manufacture_id: map[' manufacture_id'],
-       manufacture_name: map[' manufacture_name'],
-       manufacture_address: map[' manufacture_address'],
-       manufacture_phone: map[' manufacture_phone'],
-       manufacture_accountNumber: map[' manufacture_accountNumber'],
-    );
-  }
+  Manufacture.fromMap(Map<String, dynamic> res)
+      : manufacture_id = res['manufacture_id'],
+        manufacture_name = res['manufacture_name'],
+        manufacture_address = res['manufacture_address'],
+        manufacture_contact = res['manufacture_contact'],
+        business_number = res['business_number'],
+        created_at = DateTime.parse(res['created_at']);
 }

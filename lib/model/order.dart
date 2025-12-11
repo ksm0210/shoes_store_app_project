@@ -1,43 +1,31 @@
 class Order {
-  final int order_id;
-  final String order_userId;
-  final int order_productId;
-  final int order_qty;
-  final int order_price;
-  final String order_orderDate;
-  final String order_receiveStore; // 대리점 선택
+  int? order_id;
+  int customer_id;
+  int product_id;
+  int order_store_id;
+  int order_quantity;
+  int order_total_price;
+  String order_status;       // 요청, 배송중, 완료
+  DateTime created_at;
 
   Order({
-    required this.order_id,
-    required this.order_userId,
-    required this.order_productId,
-    required this.order_qty,
-    required this.order_price,
-    required this.order_orderDate,
-    required this.order_receiveStore,
+    this.order_id,
+    required this.customer_id,
+    required this.product_id,
+    required this.order_store_id,
+    required this.order_quantity,
+    required this.order_total_price,
+    required this.order_status,
+    required this.created_at,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'order_id': order_id,
-      'order_userId': order_userId,
-      'order_productId': order_productId,
-      'order_qty': order_qty,
-      'order_price': order_price,
-      'order_orderDate': order_orderDate,
-      'order_receiveStore': order_receiveStore,
-    };
-  }
-
-  factory Order.fromMap(Map<String, dynamic> map) {
-    return Order(
-      order_id: map['order_id'],
-      order_userId: map['order_userId'],
-      order_productId: map['order_productId'],
-      order_qty: map['order_qty'],
-      order_price: map['order_price'],
-      order_orderDate: map['order_orderDate'],
-      order_receiveStore: map['order_receiveStore'],
-    );
-  }
+  Order.fromMap(Map<String, dynamic> res)
+      : order_id = res['order_id'],
+        customer_id = res['customer_id'],
+        product_id = res['product_id'],
+        order_store_id = res['order_store_id'],
+        order_quantity = res['order_quantity'],
+        order_total_price = res['order_total_price'],
+        order_status = res['order_status'],
+        created_at = DateTime.parse(res['created_at']);
 }
