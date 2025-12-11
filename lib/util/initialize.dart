@@ -13,6 +13,7 @@ class Initialize {
         await db.execute("""
           create table products (
             product_id integer primary key autoincrement,
+            store_id integer not null,
             product_name text,
             product_description text,
             gender text,

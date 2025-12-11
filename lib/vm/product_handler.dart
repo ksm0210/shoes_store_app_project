@@ -16,7 +16,7 @@ class ProductHandler {
     Database db = await Initialize.initDatabase();
     return await db.rawInsert("""
         insert into products( 
-     
+            store_id,
             product_name,
             product_description,
             gender,
@@ -25,9 +25,10 @@ class ProductHandler {
             product_price,
             product_quantity,
             product_released_date,
-   
-   ) values (?,?,?,?,?,?,?,?) 
+            created_at
+   ) values (?,?,?,?,?,?,?,?,?,?) 
       """,[
+        prod.store_id,
         prod.product_name,
         prod.product_description,
         prod.gender,
@@ -35,14 +36,16 @@ class ProductHandler {
         prod.product_size,
         prod.product_price,
         prod.product_quantity,
-        prod.product_released_date.toString()
+        prod.product_released_date.toString(),
+        DateTime.now().toString()
       ]);
   }
 
   Future<int> update(Product prod) async {
     Database db = await Initialize.initDatabase();
     return await db.rawUpdate("""
-        update products set 
+        update products set
+            store_id=? 
             product_name=?,
             product_description=?,
             gender=?,
@@ -53,6 +56,7 @@ class ProductHandler {
             product_released_date=?
             where product_id=?
       """,[
+        prod.store_id,
         prod.product_name,
         prod.product_description,
         prod.gender,

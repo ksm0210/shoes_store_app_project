@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shoes_store_app_project/model/customer.dart';
 import 'package:shoes_store_app_project/model/order.dart';
+import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
 import 'package:shoes_store_app_project/vm/order_handler.dart';
+import 'package:shoes_store_app_project/vm/product_handler.dart';
 
 class OrderView extends StatefulWidget {
   const OrderView({super.key});
@@ -23,18 +25,27 @@ class _OrderViewState extends State<OrderView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // initxx();
+    initxx();
   } 
 
-  // initxx() async{
-  //   CustomerHandler customerHandler = CustomerHandler();
+  initxx() async{
+    // CustomerHandler customerHandler = CustomerHandler();
     
-  //   // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Obama', created_at: DateTime.now()));
-  //   // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Bill Gates', created_at: DateTime.now()));
+    // // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Obama', created_at: DateTime.now()));
+    // // await customerHandler.insert(Customer(customer_password: '1234', customer_name: 'Bill Gates', created_at: DateTime.now()));
 
-  //   List<Customer> cc = await customerHandler.selectQuery();
-  //   print('${cc[0].created_at}');
-  // }
+    // List<Customer> cc = await customerHandler.selectQuery();
+    // print('${cc[0].created_at}');
+
+    ProductHandler productHandler = ProductHandler();
+    await productHandler.insert(Product(
+      store_id: 1, 
+      product_name: '조던에어', product_color: 'green', product_size: 270, product_price: 150000, product_quantity: 10, created_at: DateTime.now(), product_released_date: DateTime.now()));
+
+    List<Product>? p = await productHandler.selectQuery(1);
+    print(p![0].product_name);
+
+  }
 
 
   @override
