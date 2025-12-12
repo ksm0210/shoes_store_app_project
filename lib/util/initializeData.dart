@@ -1,5 +1,7 @@
 
 
+import 'dart:math';
+
 import 'package:shoes_store_app_project/model/customer.dart';
 import 'package:shoes_store_app_project/model/manufacture.dart';
 import 'package:shoes_store_app_project/model/product.dart';
@@ -61,6 +63,11 @@ initializeData() async {
     // List<Customer> cc = await customerHandler.selectQuery();
     // print('${cc[0].created_at}');
 
+    // 랜덤함수
+    int randomShoeSize() {
+      final random = Random();
+      return 220 + random.nextInt(((300 - 220) ~/ 5) + 1) * 5;
+    }
     
 
 
