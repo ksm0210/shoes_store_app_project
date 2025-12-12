@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/product.dart';
@@ -9,8 +8,6 @@ import 'package:shoes_store_app_project/view/product/product_detail.dart';
 import 'package:shoes_store_app_project/view/search/search_result.dart';
 import 'package:shoes_store_app_project/view/user/user_info.dart';
 import 'package:shoes_store_app_project/vm/product_handler.dart';
-
-
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -24,7 +21,9 @@ class _HomeState extends State<Home> {
 
   ProductHandler productHandler = ProductHandler();
   List<Product> productList = [];
-  List<ProductCategory> categories = [];
+  List<Product> newProductList = []; // 최신상품
+  List<Product> popularProductList = []; // 인기상품
+  List<ProductCategory> categories = []; // 전체제품
   @override
   void initState() {
     // TODO: implement initState
@@ -33,15 +32,12 @@ class _HomeState extends State<Home> {
   }
 
   getData() async {
-
     productList = await productHandler.selectQuery(0);
-    
+    newProductList = await productHandler.selectDuplicationQuery(0);
+    popularProductList = await productHandler.selectPopularProductQuery();
     print('====== ${productList.length}');
-    setState(() {
-      
-    });
+    setState(() {});
   }
-
 
   void _onItemTapped(int index) {
     if (index == 3) {
@@ -141,13 +137,14 @@ class _HomeState extends State<Home> {
 
   // 제품 상세 페이지로 이동하는 공통 함수
   // main_screen.dart 내 _MainScreenState
-// 제품 상세 페이지로 이동하는 공통 함수 (수정됨)
-   void _navigateToDetail(Map<String, String> product) {
+  // 제품 상세 페이지로 이동하는 공통 함수 (수정됨)
+  void _navigateToDetail(Map<String, String> product) {
     // DetailScreen의 생성자 인자에 맞게 Map 데이터를 분해하여 전달
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProductDetail( // 클래스명을 DetailScreen으로 수정
+        builder: (context) => ProductDetail(
+          // 클래스명을 DetailScreen으로 수정
           // title: product['title']!,
           // subtitle: product['subtitle']!,
           // imageUrl: product['image']!,
@@ -157,7 +154,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -185,45 +181,48 @@ class _HomeState extends State<Home> {
                   onPressed: () {},
                 ),
                 IconButton(
-                  icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
+                  icon: const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: Colors.black,
+                  ),
                   onPressed: () {},
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
-      body: productList.length==0? 
-        const Center(child: CircularProgressIndicator())
-      : SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hero Section
-            _buildHeroSection(),
-            const SizedBox(height: 16),
+      body: productList.length == 0
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Hero Section
+                  _buildHeroSection(),
+                  const SizedBox(height: 16),
 
-            // Section 1: 최신제품 (Horizontal Scroll)
-            const SectionTitle(title: "최신제품"),
-            const SizedBox(height: 12),
-            _buildNewArrivals(),
-            const SizedBox(height: 16),
+                  // Section 1: 최신제품 (Horizontal Scroll)
+                  const SectionTitle(title: "최신제품"),
+                  const SizedBox(height: 12),
+                  _buildNewArrivals(),
+                  const SizedBox(height: 16),
 
-            // Section 2: 인기제품 (Grid)
-            const SectionTitle(title: "인기제품"),
-            const SizedBox(height: 12),
-            _buildPopularProducts(),
-            const SizedBox(height: 16),
+                  // Section 2: 인기제품 (Grid)
+                  const SectionTitle(title: "인기제품"),
+                  const SizedBox(height: 12),
+                  _buildPopularProducts(),
+                  const SizedBox(height: 16),
 
-            // Section 3: 전체제품 (Categories)
-            const SectionTitle(title: "전체제품"),
-            const SizedBox(height: 12),
-            _buildAllProducts(),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
+                  // Section 3: 전체제품 (Categories)
+                  const SectionTitle(title: "전체제품"),
+                  const SizedBox(height: 12),
+                  _buildAllProducts(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: Colors.grey.shade200)),
@@ -242,8 +241,14 @@ class _HomeState extends State<Home> {
             BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: '홈'),
             BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: '카테고리'),
             BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '마이페이지'),
-            BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: '장바구니'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              label: '마이페이지',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart_outlined),
+              label: '장바구니',
+            ),
           ],
         ),
       ),
@@ -259,8 +264,8 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(12),
         image: DecorationImage(
           image: NetworkImage(
-              productList[0].mainImageUrl!
-          ),//"https://lh3.googleusercontent.com/aida-public/AB6AXuDHi22KsHGy4wL-HzW9V2Qkn9-63YqqrkRffjXiHpq4nuP46eaRhAJrRbkCQTShID2ZjvPBDcqYFgNvBMkEl0Yy0gmNapTPTtY_lTtCthFAUQb1I0nC0ax0XTWspGWB2C-B2ZIbCk_D0UyTT5LSGL9FaYpKUZtWw1kiUIdax1g9HeSS2rMxpuKfjysexwCzB34HLV7i7PwWTC1qOHKFegVJM410ROXXHIDW1zLnKNx0ECBq3RGRfzUGJfJi9Csg2LrBVlsiKDxMnR4"),
+            productList[0].mainImageUrl!,
+          ), // 여기가 최신 스니커즈 출시 Image
           fit: BoxFit.cover,
         ),
       ),
@@ -299,19 +304,24 @@ class _HomeState extends State<Home> {
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: ()=> Get.to(()=>ProductDetail(),arguments: productList[0].product_id),
+                  onPressed: () => Get.to(
+                    () => ProductDetail(),
+                    arguments: productList[0].product_id,
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     minimumSize: const Size(84, 32),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                     elevation: 0,
                   ),
-                  child:
-                   const Text(
+                  child: const Text(
                     "쇼핑 하기",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
@@ -325,14 +335,16 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildNewArrivals() {
-    final products = productList.map((data)=> {
-        "title": data.product_name,
-        "subtitle": data.gender != null? '${data.gender}신발': '신발',
-        "image": data.mainImageUrl
-        }).toList();
+    // final products = productList
+    //     .map(
+    //       (data) => {
+    //         "title": data.product_name,
+    //         "subtitle": data.gender != null ? '${data.gender}신발' : '신발',
+    //         "image": data.mainImageUrl,
+    //       },
+    //     )
+    //     .toList();
 
-    
-    
     //  [
     //   {
     //     "title": "에어 맥스 90",
@@ -357,16 +369,19 @@ class _HomeState extends State<Home> {
     // ];
 
     return SizedBox(
+      // 여기가 최신제품 나오는데
       height: 160, // Image(aspect square) + Text height
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: productList.length,
+        itemCount: newProductList.length,
         separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final item = productList[index];
+          final item = newProductList[index];
           return GestureDetector(
-            onTap: ()=> Get.to(()=>ProductDetail(),arguments: item.product_id)
-            ,//=> _navigateToDetail(item),
+            onTap: () => Get.to(
+              () => ProductDetail(),
+              arguments: item.product_id,
+            ), //=> _navigateToDetail(item),
             child: SizedBox(
               width: 110, // Approx 1/3 of screen width
               child: Column(
@@ -388,11 +403,14 @@ class _HomeState extends State<Home> {
                   const SizedBox(height: 6),
                   Text(
                     item.product_name!,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    item.gender!=null? '${item.gender}신발': '신발',
+                    item.gender != null ? '${item.gender}신발' : '신발',
                     style: const TextStyle(fontSize: 10, color: Colors.grey),
                   ),
                 ],
@@ -404,69 +422,81 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // 인기상품
   Widget _buildPopularProducts() {
-    final products = [
-      {
-        "title": "에어 맥스 97",
-        "subtitle": "남성 신발",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDDt5iFoapJl0uzAcARC3gJPbzvQs0B0DGYyikn9yhKPgDeNRWgFMpXnUr543Jf4vgND33BjX-omWHAi_KpAfShPPreEqkR-yCUnKJky7U2aAQmce0EwmhHCpdCcoe97sMNXf47C-paUuhwWsWrvESOpXxkCknBejgTx2jGR5dPFZV9By4ISUZVn3ztQtLeovreJkxKQgA-_ejVKAy8CBbnG6yRp_dqSedQE7Ye-Mjk7jWUv2utjph7EKzhqKXkuJRpZia9Qa2XD1w"
-      },
-      {
-        "title": "에어 맥스 720",
-        "subtitle": "여성 신발",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm8qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A"
-      },
-    ];
-
-    return Row(
-      children: products.map((item) {
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: item == products.last ? 0 : 12),
-            child: GestureDetector(
-              onTap: () => _navigateToDetail(item),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey[100],
-                        image: DecorationImage(
-                          image: NetworkImage(item['image']!),
-                          fit: BoxFit.cover,
-                        ),
+    return popularProductList.isEmpty
+        ? Text(
+            '아직 주문 데이터가 없어 인기제품을 보여드릴수가 없습니다..',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          )
+        : SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: popularProductList.map((item) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: item == popularProductList.last ? 0 : 12,
+                  ),
+                  child: SizedBox(
+                    width: 160,
+                    child: GestureDetector(
+                      onTap: () => Get.to(
+                        () => ProductDetail(),
+                        arguments: item.product_id,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 1,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.grey[100],
+                                image: DecorationImage(
+                                  image: NetworkImage(item.mainImageUrl!),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            item.product_name,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            item.gender!,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    item['title']!,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    item['subtitle']!,
-                    style: const TextStyle(fontSize: 10, color: Colors.grey),
-                  ),
-                ],
-              ),
+                );
+              }).toList(),
             ),
-          ),
-        );
-      }).toList(),
-    );
+          );
   }
 
   Widget _buildAllProducts() {
-    final categories = GlobalLoginData.categories.map((data)=> {
-        "title": data.category_name,
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4"
-      }).toList();
-    
-    
+    final categories = GlobalLoginData.categories
+        .map(
+          (data) => {
+            "title": data.category_name,
+            "image":
+                "https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4",
+          },
+        )
+        .toList();
+
     // [
     //   {
     //     "title": "라이프스타일",
@@ -522,7 +552,11 @@ class RelativePositionedTile extends StatelessWidget {
   final String title;
   final String image;
 
-  const RelativePositionedTile({super.key, required this.title, required this.image});
+  const RelativePositionedTile({
+    super.key,
+    required this.title,
+    required this.image,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -534,13 +568,8 @@ class RelativePositionedTile extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              image,
-              fit: BoxFit.cover,
-            ),
-            Container(
-              color: Colors.black.withOpacity(0.3),
-            ),
+            Image.network(image, fit: BoxFit.cover),
+            Container(color: Colors.black.withOpacity(0.3)),
             Positioned(
               bottom: 8,
               left: 8,
@@ -559,7 +588,6 @@ class RelativePositionedTile extends StatelessWidget {
     );
   }
 }
-
 
 class LogoPainter extends CustomPainter {
   @override

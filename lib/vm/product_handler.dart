@@ -1,10 +1,8 @@
-
 import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/util/initialize.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ProductHandler {
-
   Future<List<Product>> selectQuery(int id) async {
     Database db = await Initialize.initDatabase();
     // 최신제품
@@ -13,29 +11,32 @@ class ProductHandler {
       inner join manufactures on products.manufacture_id = manufactures.manufacture_id
       inner join productCategories on productCategories.category_id=products.category_id
       order by products.product_released_date desc
+
       """);
 
-    return data.map((data)=>Product.fromMap(data)).toList();
+    return data.map((data) => Product.fromMap(data)).toList();
   }
 
+  // 상품 1개 정보가져오기
   Future<List<Product>> selectQueryById(int id) async {
     Database db = await Initialize.initDatabase();
-    final data = await db.rawQuery("""
+    final data = await db.rawQuery(
+      """
       select products.*,productCategories.category_name,manufactures.manufacture_name from products 
       inner join manufactures on products.manufacture_id = manufactures.manufacture_id
       inner join productCategories on productCategories.category_id=products.category_id
       where products.product_id=?
-      """,[id]);
+      """,
+      [id],
+    );
 
-    return data.map((data)=>Product.fromMap(data)).toList();
+    return data.map((data) => Product.fromMap(data)).toList();
   }
-  
-
-
 
   Future<int> insert(Product prod) async {
     Database db = await Initialize.initDatabase();
-    return await db.rawInsert("""
+    return await db.rawInsert(
+      """
         insert into products( 
             store_id,
             category_id,
@@ -53,7 +54,8 @@ class ProductHandler {
             product_released_date,
             created_at
    ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
-      """,[
+      """,
+      [
         prod.store_id,
         prod.category_id,
         prod.manufacture_id,
@@ -68,13 +70,15 @@ class ProductHandler {
         prod.sub1ImageUrl,
         prod.sub2ImageUrl,
         prod.product_released_date.toString(),
-        DateTime.now().toString()
-      ]);
+        DateTime.now().toString(),
+      ],
+    );
   }
 
   Future<int> update(Product prod) async {
     Database db = await Initialize.initDatabase();
-    return await db.rawUpdate("""
+    return await db.rawUpdate(
+      """
         update products set
             store_id=? 
             category_id=?,
@@ -91,7 +95,8 @@ class ProductHandler {
             sub2ImageUrl=?,
             product_released_date=?
             where product_id=?
-      """,[
+      """,
+      [
         prod.store_id,
         prod.category_id,
         prod.manufacture_id,
@@ -106,26 +111,58 @@ class ProductHandler {
         prod.sub1ImageUrl,
         prod.sub2ImageUrl,
         prod.product_released_date.toString(),
-        prod.product_id
-      ]);
+        prod.product_id,
+      ],
+    );
   }
 
-   // 검색부분 
-   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
+  // 검색부분
+  Future<List<Map<String, dynamic>>> searchProducts(String query) async {
     final Database db = await Initialize.initDatabase();
 
     // like 검색 (대소문자/공백까지 느슨하게 하려면 query 가공 가능)
     final String q = "%${query.trim()}%";
 
     // 여기에 product_image 넣으면 나옴
-    final result = await db.rawQuery("""
+    final result = await db.rawQuery(
+      """
       SELECT product_id, product_name, product_price
       FROM products
       WHERE product_name LIKE ?
       ORDER BY created_at DESC
-    """, [q]);
+    """,
+      [q],
+    );
 
     return result;
   }
 
+  // 최신제품 중복으로 안나오게 쿼리(제한10까지)
+  Future<List<Product>> selectDuplicationQuery(int id) async {
+    Database db = await Initialize.initDatabase();
+    final data = await db.rawQuery("""
+      select p.* from products p
+      join(select product_name, product_color, max(product_id) as max_id
+            from products group by product_name, product_color) x
+      on p.product_id = x.max_id
+      order by p.product_released_date desc
+      limit 10;
+      """);
+    return data.map((data) => Product.fromMap(data)).toList();
+  }
+
+  // 인기상품
+  Future<List<Product>> selectPopularProductQuery() async {
+    Database db = await Initialize.initDatabase();
+    final data = await db.rawQuery('''
+      select p.*, sum(o.order_quantity) as total_qty
+      from products p
+      join orders o on o.product_id = p.product_id
+      group by p.product_id
+      order by total_qty desc
+      limit 10;
+      ''');
+
+    return data.map((data) => Product.fromMap(data)).toList();
+  }
 }

@@ -16,7 +16,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   // Property
-  late bool obscurePassword;       // 비밀번호 숨김 여부
+  late bool obscurePassword; // 비밀번호 숨김 여부
   late CustomerHandler handler;
   late int value; // customer text 투명도
   late bool manager2Visible; // Visible value
@@ -40,7 +40,6 @@ class _LoginState extends State<Login> {
     pwdController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -108,12 +107,14 @@ class _LoginState extends State<Login> {
                       onPressed: () {
                         obscurePassword = !obscurePassword;
                         setState(() {});
-                      }, 
+                      },
                       icon: Icon(
-                        obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey,
-                      )
-                    )
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -134,7 +135,7 @@ class _LoginState extends State<Login> {
                         idController.text.trim(),
                         pwdController.text.trim(),
                       );
-                      print('${result!.customer_id}-1=2-1=23-1');
+                      // print('${result!.customer_id}-1=2-1=23-1');
                       if (result != null && result.customer_id != null) {
                         // 여기가 로그인 들어왔을때
                         GlobalLoginData.isLogin = true;
@@ -145,18 +146,15 @@ class _LoginState extends State<Login> {
                           "환영합니다!",
                           snackPosition: SnackPosition.BOTTOM,
                         );
-                        
+
                         // 로그인 성공 시 MainScreen으로 이동하며 이전 스택(로그인창)을 지웁니다.
-                        Get.offAll(() => const Home()); 
-                        
-
-
+                        Get.offAll(() => const Home());
                       } else {
                         Get.snackbar(
                           "경고",
                           "아이디, 비밀번호가 틀립니다\n다시입력해주세요",
-                          snackPosition: SnackPosition
-                              .TOP, // snackbar 위치이동(TOP, BOTTOM)
+                          snackPosition:
+                              SnackPosition.TOP, // snackbar 위치이동(TOP, BOTTOM)
                           duration: Duration(seconds: 2),
                           backgroundColor: Colors.red,
                           colorText: Colors.black, // snackbar는 bold가 기본이다.

@@ -15,25 +15,24 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   CategoryHandler categoryHandler = CategoryHandler();
 
   @override
   void initState() {
     super.initState();
-    
+
     initData();
     // 2초 후 로그인 화면으로 이동
     Future.delayed(const Duration(seconds: 2), () {
       // 2. '/login' 문자열 경로 대신 클래스로 직접 이동하게 수정
       // 이렇게 하면 main.dart에 복잡한 라우트 설정이 없어도 바로 넘어갑니다.
-   
-      Get.off(() => GlobalLoginData.isLogin?const Home() :const Login());
+
+      Get.off(() => GlobalLoginData.isLogin ? const Home() : const Login());
     });
   }
 
   initData() async {
-    // await initializeData();
+    await initializeData();
     GlobalLoginData.categories = await categoryHandler.selectQuery();
   }
 
@@ -64,10 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 8),
             Text(
               "Walk in Style",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
           ],
         ),
