@@ -2,7 +2,7 @@
 class Customer {
   // 고객정보
   int? customer_id;
-  String customer_password;
+  String? customer_password;
   String customer_name;
   String customer_email;
   double? customer_lat;
@@ -14,8 +14,8 @@ class Customer {
 
   Customer(
     {
-
-      required this.customer_password,
+      this.customer_id,
+      this.customer_password,
       required this.customer_name,
       required this.customer_email,
       this.customer_city,
@@ -28,7 +28,8 @@ class Customer {
   );
 
     Customer.fromMap(Map<String,dynamic> res)
-  :    
+  : 
+    customer_id = res['customer_id'],   
     customer_password = res['customer_password'],
     customer_name = res['customer_name'],
     customer_email = res['customer_email'],
@@ -36,6 +37,6 @@ class Customer {
     customer_state = res['customer_state'],
     customer_lat = res['customer_lat'],
     customer_lng = res['customer_lng'],
-    created_at = DateTime.parse(res['created_at']);
+    created_at = res['created_at']!=null&&res['created_at']!='null' && res['created_at']!='' ? DateTime.parse(res['created_at']):null;
 
 }

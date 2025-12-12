@@ -52,17 +52,22 @@ class CustomerHandler {
   }
 
     // ID,PWD DB에 있는지 확인 Query
-    Future<int> loginSelectQuery(String id, String pwd) async {
+    Future<Customer?> loginSelectQuery(String id, String pwd) async {
     Database db = await Initialize.initDatabase();
     final data = await db.rawQuery(
       '''
-      select count(customer_id) as cnt from customers
+      select customer_id,customer_email,customer_name, created_at from customers
       where customer_email = ? and customer_password = ?
       ''',
       [id,pwd]
       );
-      int count = data.first['cnt'] as int;
-      return count;
+
+      List<Customer?> result = data.map((d)=>Customer.fromMap(d)).toList();
+      
+      if(result.length>0 && result[0]!=null){
+        return result[0];
+      }
+      return null;
   }
 
   // 아이디가 중복인지 확인

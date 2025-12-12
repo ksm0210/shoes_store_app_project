@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/customer.dart';
+import 'package:shoes_store_app_project/util/controllers.dart';
+import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/view/auth/signup.dart';
 import 'package:shoes_store_app_project/view/home.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
@@ -31,6 +33,14 @@ class _LoginState extends State<Login> {
     idController = TextEditingController();
     pwdController = TextEditingController();
   }
+
+  @override
+  void dispose() {
+    idController.dispose();
+    pwdController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +130,16 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     onPressed: () async {
-                      int result = await handler.loginSelectQuery(
+                      Customer? result = await handler.loginSelectQuery(
                         idController.text.trim(),
                         pwdController.text.trim(),
                       );
-                      if (result == 1) {
+                      print('${result!.customer_id}-1=2-1=23-1');
+                      if (result != null && result.customer_id != null) {
                         // 여기가 로그인 들어왔을때
+                        GlobalLoginData.isLogin = true;
+                        GlobalLoginData.customer_id = result.customer_id!;
+
                         Get.snackbar(
                           "로그인 성공",
                           "환영합니다!",

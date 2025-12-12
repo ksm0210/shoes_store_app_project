@@ -61,7 +61,7 @@ class Initialize {
 
         // store table
         await db.execute("""
-        CREATE TABLE Store (
+        CREATE TABLE Stores (
           store_id INTEGER PRIMARY KEY AUTOINCREMENT,
           store_name TEXT NOT NULL,
           store_address TEXT,
