@@ -169,8 +169,6 @@ class _ProductListState extends State<ProductList> {
         ),
       ),
 
-      // 하단 네비는 지금 화면 디자인에만 맞춰서 "자리만" 잡은 거야.
-      // 이미 너 프로젝트에 BottomNavigationBar가 있으면 그쪽 구조에 맞춰 붙이면 됨.
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1,
         type: BottomNavigationBarType.fixed,

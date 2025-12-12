@@ -67,7 +67,7 @@ class SearchResultPage extends StatelessWidget {
               final int price =
                   int.tryParse(item['product_price']?.toString() ?? '0') ?? 0;
 
-              // ✅ 이미지 컬럼이 없거나 null일 수 있으니 방어
+              // 이미지 컬럼이 없거나 null일 수 있으니 방어
               final String? imageUrl = item['product_image']?.toString();
 
               final priceFormatted = price.toString().replaceAllMapped(
