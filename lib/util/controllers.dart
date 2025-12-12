@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/order.dart';
 
 // 전역 앱 UI 및 네비게이션 관리 컨트롤러
 class AppController extends GetxController {
@@ -16,8 +17,8 @@ class AppController extends GetxController {
 // 전역 장바구니 데이터 및 로직 관리 컨트롤러
 class CartController extends GetxController {
   var cartItems = <Map<String, dynamic>>[].obs;
-
-  void addToCart(String title, int price, String image, String size) {
+  // var cartItems = <Order>[].obs;
+  void addToCart( String title, int price, String image, String size) {
     int existingIndex = cartItems.indexWhere((element) => element['title'] == title && element['size'] == size);
     
     if (existingIndex >= 0) {

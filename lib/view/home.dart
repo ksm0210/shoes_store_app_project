@@ -50,7 +50,7 @@ class _HomeState extends State<Home> {
       // 장바구니 (인덱스 4)
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ShoppingCart()),
+        MaterialPageRoute(builder: (context) => const ShoppingCartView()),
       );
     } else if (index == 2) {
       // 검색 (인덱스 2)
@@ -106,13 +106,15 @@ class _HomeState extends State<Home> {
       textInputAction: TextInputAction.search,
       onSubmitted: (query) {
         if (query.isNotEmpty) {
-          Navigator.pop(context); // BottomSheet 닫기
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SearchResultPage(query: query),
-            ),
-          );
+          Get.back();
+          Get.to(() => SearchResultPage(query: query));
+          // Navigator.pop(context); // BottomSheet 닫기
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => SearchResultPage(query: query),
+          //   ),
+          // );
         }
       },
       decoration: InputDecoration(
@@ -520,9 +522,12 @@ class _HomeState extends State<Home> {
         separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final item = categories[index];
-          return RelativePositionedTile(
-            title: item['title']!,
-            image: item['image']!,
+          return GestureDetector(
+            onTap: () => Get.to(() => SearchResultPage(query: item['title']!)),
+            child: RelativePositionedTile(
+              title: item['title']!,
+              image: item['image']!,
+            ),
           );
         },
       ),

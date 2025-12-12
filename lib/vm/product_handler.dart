@@ -134,7 +134,20 @@ class ProductHandler {
       [q],
     );
 
-    return result;
+    final data = await db.rawQuery(
+      """
+      select products.*,productCategories.category_name,manufactures.manufacture_name from products 
+      inner join manufactures on products.manufacture_id = manufactures.manufacture_id
+      inner join productCategories on productCategories.category_id=products.category_id
+      where products.product_name like ? or productCategories.category_name like ?
+      order by products.product_released_date desc
+      """,
+      [q, q],
+    );
+
+    return data.map((data) => Product.fromMap(data)).toList();
+
+    // return result;
   }
 
   // 최신제품 중복으로 안나오게 쿼리(제한10까지)

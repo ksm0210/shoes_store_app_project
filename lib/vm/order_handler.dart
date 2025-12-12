@@ -10,6 +10,18 @@ class OrderHandler {
     return data.map((data) => Order.fromMap(data)).toList();
   }
 
+    Future<List<Order>> selectQueryByCustomerId(int id) async {
+    Database db = await Initialize.initDatabase();
+    final data = await db.rawQuery("""
+      select orders.*,products.product_name,products.product_mainImageUrl from orders 
+      inner join products on orders.product_id=products.product_id
+      where orders.customer_id=?
+    """,[id]);
+
+    return data.map((data)=>Order.fromMap(data)).toList();
+  }
+  
+
   // Future<List<Order>> selectQueryByProductId(int id) async {
   //   Database db = await Initialize.initDatabase();
   //   final data = await db.rawQuery("""

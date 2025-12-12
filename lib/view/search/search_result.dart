@@ -1,5 +1,8 @@
 // search_result.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/product.dart';
+import 'package:shoes_store_app_project/view/product/product_detail.dart';
 import 'package:shoes_store_app_project/vm/product_handler.dart';
 
 class SearchResultPage extends StatelessWidget {
@@ -24,7 +27,7 @@ class SearchResultPage extends StatelessWidget {
           },
         ),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Product>>(
         future: productHandler.searchProducts(query),
         builder: (context, snapshot) {
           if (query.trim().isEmpty) {
@@ -63,12 +66,12 @@ class SearchResultPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = results[index];
 
-              final String name = (item['product_name'] ?? '').toString();
+              final String name = (item.product_name ?? '').toString();
               final int price =
-                  int.tryParse(item['product_price']?.toString() ?? '0') ?? 0;
+                  int.tryParse(item.product_price.toString() ?? '0') ?? 0;
 
               // 이미지 컬럼이 없거나 null일 수 있으니 방어
-              final String? imageUrl = item['product_image']?.toString();
+              final String? imageUrl = item.mainImageUrl.toString();
 
               final priceFormatted = price.toString().replaceAllMapped(
                 RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -84,17 +87,20 @@ class SearchResultPage extends StatelessWidget {
                       child: Container(
                         color: Colors.grey[100],
                         child: (imageUrl != null && imageUrl.isNotEmpty)
-                            ? Image.network(
-                                imageUrl,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorBuilder: (_, __, ___) => const Center(
-                                  child: Icon(
-                                    Icons.image_not_supported,
-                                    color: Colors.grey,
+                            ? GestureDetector(
+                              onTap: ()=>Get.to(()=>ProductDetail(),arguments: results[index].product_id ),
+                              child: Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (_, __, ___) => const Center(
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                 ),
-                              )
+                            )
                             : const Center(
                                 child: Icon(Icons.image, color: Colors.grey),
                               ),
