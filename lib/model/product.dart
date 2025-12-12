@@ -14,6 +14,10 @@ class Product{
   int product_size;
   int product_price;
   int product_quantity;
+  String? mainImageUrl;
+  String? sub1ImageUrl;
+  String? sub2ImageUrl;
+  
   DateTime product_released_date;
   DateTime created_at;
 
@@ -28,6 +32,9 @@ class Product{
     required this.product_size,
     required this.product_price,
     required this.product_quantity,
+    this.mainImageUrl,
+    this.sub1ImageUrl,
+    this.sub2ImageUrl,
     required this.product_released_date,
     required this.created_at,
   });
@@ -46,6 +53,9 @@ class Product{
   product_size = json['product_size'],
   product_price = json['product_price'],
   product_quantity = json['product_quantity'],
+  mainImageUrl = json['mainImageUrl'],
+  sub1ImageUrl = json['sub1ImageUrl'],
+  sub2ImageUrl = json['sub2ImageUrl'],
   product_released_date = DateTime.parse(json['product_released_date']),
   created_at = DateTime.parse(json['created_at']);
 }

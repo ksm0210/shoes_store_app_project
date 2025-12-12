@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/product.dart';
+import 'package:shoes_store_app_project/model/review.dart';
+import 'package:shoes_store_app_project/util/global_login_data.dart';
+import 'package:shoes_store_app_project/vm/product_handler.dart';
+import 'package:shoes_store_app_project/vm/review_handler.dart';
 
 // DetailView의 생성자 정보를 반영하여 DetailScreen을 수정합니다.
 class ProductDetail extends StatefulWidget {
@@ -27,22 +33,65 @@ class _ProductDetailState extends State<ProductDetail> {
   int _currentImageIndex = 0;
   int _selectedColorIndex = 0;
   bool _isLiked = false;
+  late Product? product = null;
+  ProductHandler productHandler = ProductHandler();
+  ReviewHandler reviewHandler = ReviewHandler();
+  int product_id = Get.arguments ?? 0;
 
+  List<Review> reviewList =  [];
+  Map<String,dynamic> rateReport = {'totalCount':0,'rateTotalPoint':0,'rates':[]};
+  
+
+
+  // double reviewAvg = 0;
   // 더미 데이터: 이미지 리스트 (넘겨받은 imageUrl을 첫 번째 이미지로 사용하도록 변경)
   // 실제 제품의 여러 이미지를 구현하려면 이 리스트를 DetailScreen의 인자로 받아야 하지만,
   // 현재는 넘겨받은 imageUrl을 포함하고 기존 더미를 유지합니다.
-  late final List<String> _productImages;
+  late final List<String> _productImages = [];
 
   @override
   void initState() {
     super.initState();
     // 넘겨받은 imageUrl을 첫 번째 이미지로 설정 (다른 색상 더미는 유지)
-    _productImages = [
-      widget.imageUrl, // main_screen에서 넘겨받은 이미지
-      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/air-force-1-07-mens-shoes-jBrhBr.png", // 흰색 (대체)
-      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/fc4622c4-2769-4665-aa6e-a2c06d316662/air-force-1-07-mens-shoes-jBrhBr.png", // 검정 (대체)
-      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa503541-c9d3-455b-9285-a77d70428d02/air-force-1-07-mens-shoes-jBrhBr.png", // 된장 (대체)
-    ];
+
+
+    
+    // getData(product_id);
+    getData(1);
+    // _productImages = [
+    //   widget.imageUrl, // main_screen에서 넘겨받은 이미지
+    //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/air-force-1-07-mens-shoes-jBrhBr.png", // 흰색 (대체)
+    //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/fc4622c4-2769-4665-aa6e-a2c06d316662/air-force-1-07-mens-shoes-jBrhBr.png", // 검정 (대체)
+    //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa503541-c9d3-455b-9285-a77d70428d02/air-force-1-07-mens-shoes-jBrhBr.png", // 된장 (대체)
+    // ];
+  }
+
+  getData(int id) async {
+    List<Product> list =  await productHandler.selectQueryById(id);
+    if(list.length>0){
+      product = list[0];
+      _productImages.add(list[0].mainImageUrl!);
+      if(list[0].sub1ImageUrl != null && list[0].sub1ImageUrl!=''){
+         _productImages.add(list[0].sub1ImageUrl!);
+      }
+        if(list[0].sub2ImageUrl != null && list[0].sub2ImageUrl!=''){
+         _productImages.add(list[0].sub2ImageUrl!);
+      }
+      reviewList = await reviewHandler.selectQuery(id);
+      
+
+      final queryResult  = await reviewHandler.selectQueryForReport(id);
+
+
+      for(final d in queryResult){
+        rateReport['rateTotalPoint'] += d['review_rating'] * d['count'] as int;
+        rateReport["totalCount"] += d['count'] as int;
+        rateReport['rates'].add(d);
+      }
+
+      setState(() {});
+    }
+  
   }
 
   @override
@@ -51,9 +100,12 @@ class _ProductDetailState extends State<ProductDetail> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        child: Column(
+        child: product==null? 
+         const CircularProgressIndicator()
+        : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('${GlobalLoginData.customer_id}'),
             // 1. 이미지 캐러셀
             _buildImageCarousel(),
 
@@ -68,17 +120,17 @@ class _ProductDetailState extends State<ProductDetail> {
                   // 3. 상품 정보 (타이틀, 가격)
                   const SizedBox(height: 20),
                   Text(
-                    widget.title, // 넘겨받은 title 사용
+                    product!.product_name, //widget.title, // 넘겨받은 title 사용
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.subtitle, // 넘겨받은 subtitle 사용
+                    '남성 신발',//widget.subtitle, // 넘겨받은 subtitle 사용
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    widget.price, // 넘겨받은 price 사용
+                    product!.product_price.toString(), //widget.price, // 넘겨받은 price 사용
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
                   ),
 
@@ -102,7 +154,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.description, // 넘겨받은 description 사용
+                    product!.product_description!,//widget.description, // 넘겨받은 description 사용
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
                   ),
                   const Divider(height: 60, thickness: 1, color: Color(0xFFEEEEEE)),
@@ -420,34 +472,46 @@ class _ProductDetailState extends State<ProductDetail> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const Text("4.6", style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, height: 1.0)),
+            Text(( rateReport['rateTotalPoint']/rateReport['totalCount']).toString(), style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, height: 1.0)),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: List.generate(5, (index) => const Icon(Icons.star, size: 18, color: Colors.black)),
+                   children: List.generate(5, (index) {
+              return Icon(
+                index < (rateReport['rateTotalPoint']/rateReport['totalCount']) ? Icons.star : Icons.star_border,
+                size: 16,
+                color: Colors.black,
+              );
+            }),
+                  //List.generate(5, (index) => const Icon(Icons.star, size: 18, color: Colors.black)),
                 ),
                 const SizedBox(height: 4),
-                const Text("1,234 reviews", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text("${rateReport['totalCount']} reviews", style: TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ],
         ),
         const SizedBox(height: 20),
         // 평점 그래프 (간소화)
-        _buildRatingBar(5, 0.5),
-        _buildRatingBar(4, 0.3),
-        _buildRatingBar(3, 0.1),
-        _buildRatingBar(2, 0.05),
-        _buildRatingBar(1, 0.05),
+        Column(children: List.generate(
+          rateReport['rates'].length,(index)=> _buildRatingBar(rateReport['rates'][index]['review_rating'], 0.5)
+         )),
+        // _buildRatingBar(5, 0.5),
+        // _buildRatingBar(4, 0.3),
+        // _buildRatingBar(3, 0.1),
+        // _buildRatingBar(2, 0.05),
+        // _buildRatingBar(1, 0.05),
 
         const SizedBox(height: 30),
-        const Text("리뷰 (1,234)", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text("리뷰 (${rateReport['totalCount']})", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
         // 개별 리뷰 아이템
-        _buildReviewItem("지우", "2023년 10월 26일", 5, "정말 편하고 디자인도 예뻐요! 매일 신고 다닙니다."),
-        _buildReviewItem("민준", "2023년 10월 20일", 4, "사이즈가 조금 크게 나온 것 같아요. 그래도 만족합니다."),
+        
+        Column(children: _buildReview()),
+        // _buildReviewItem("지우", "2023년 10월 26일", 5, "정말 편하고 디자인도 예뻐요! 매일 신고 다닙니다."),
+        // _buildReviewItem("민준", "2023년 10월 20일", 4, "사이즈가 조금 크게 나온 것 같아요. 그래도 만족합니다."),
       ],
     );
   }
@@ -473,6 +537,109 @@ class _ProductDetailState extends State<ProductDetail> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildReview() {
+
+    
+    return reviewList.map((data)=>Padding(
+      padding: const EdgeInsets.only(bottom: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 16,
+                backgroundColor: Color(0xFFEEEEEE),
+                child: Icon(Icons.person, color: Colors.grey, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(data.customer_name!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(data.created_at.toString(), style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: List.generate(5, (index) {
+              return Icon(
+                index < data.review_rating ? Icons.star : Icons.star_border,
+                size: 16,
+                color: Colors.black,
+              );
+            }),
+          ),
+          const SizedBox(height: 8),
+          Text(data.review_content!, style: const TextStyle(fontSize: 14, height: 1.4)),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey),
+              const SizedBox(width: 4),
+              Text("${(data.review_rating  * 2) + 3}", style: const TextStyle(fontSize: 12, color: Colors.grey)), // 더미 숫자
+              const SizedBox(width: 16),
+              const Icon(Icons.thumb_down_alt_outlined, size: 16, color: Colors.grey),
+            ],
+          )
+        ],
+      ),
+    )
+    ).toList();
+
+
+
+    // return [Padding(
+    //   padding: const EdgeInsets.only(bottom: 24.0),
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       Row(
+    //         children: [
+    //           const CircleAvatar(
+    //             radius: 16,
+    //             backgroundColor: Color(0xFFEEEEEE),
+    //             child: Icon(Icons.person, color: Colors.grey, size: 20),
+    //           ),
+    //           const SizedBox(width: 10),
+    //           Column(
+    //             crossAxisAlignment: CrossAxisAlignment.start,
+    //             children: [
+    //               Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+    //               Text(date, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+    //             ],
+    //           ),
+    //         ],
+    //       ),
+    //       const SizedBox(height: 8),
+    //       Row(
+    //         children: List.generate(5, (index) {
+    //           return Icon(
+    //             index < stars ? Icons.star : Icons.star_border,
+    //             size: 16,
+    //             color: Colors.black,
+    //           );
+    //         }),
+    //       ),
+    //       const SizedBox(height: 8),
+    //       Text(comment, style: const TextStyle(fontSize: 14, height: 1.4)),
+    //       const SizedBox(height: 10),
+    //       Row(
+    //         children: [
+    //           const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey),
+    //           const SizedBox(width: 4),
+    //           Text("${(stars * 2) + 3}", style: const TextStyle(fontSize: 12, color: Colors.grey)), // 더미 숫자
+    //           const SizedBox(width: 16),
+    //           const Icon(Icons.thumb_down_alt_outlined, size: 16, color: Colors.grey),
+    //         ],
+    //       )
+    //     ],
+    //   ),
+    // )];
   }
 
   Widget _buildReviewItem(String name, String date, int stars, String comment) {

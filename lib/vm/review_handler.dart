@@ -8,10 +8,24 @@ class ReviewHandler {
 
   Future<List<Review>> selectQuery(int id) async {
     Database db = await Initialize.initDatabase();
-    final data = await db.rawQuery('select * from review');
+    final data = await db.rawQuery("""
+      select reviews.*,customers.customer_name from reviews
+      inner join customers on reviews.customer_id=customers.customer_id
+      where reviews.product_id=?
+    """,[id]);
 
     return data.map((data)=>Review.fromMap(data)).toList();
   }
+  
+  Future<List> selectQueryForReport(int id) async {
+    Database db = await Initialize.initDatabase();
+      final data = await db.rawQuery("""
+      select review_rating,count(review_id) as count from reviews where reviews.product_id=? Group by review_rating
+    """,[id]);
+    return data.toList();
+  }
+
+
   
   Future<int> insert(Review review) async {
     Database db = await Initialize.initDatabase();

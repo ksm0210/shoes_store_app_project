@@ -17,6 +17,17 @@ class ProductHandler {
     return data.map((data)=>Product.fromMap(data)).toList();
   }
 
+  Future<List<Product>> selectQueryById(int id) async {
+    Database db = await Initialize.initDatabase();
+    final data = await db.rawQuery("""
+      select products.*,productCategories.category_name,manufactures.manufacture_name from products 
+      inner join manufactures on products.manufacture_id = manufactures.manufacture_id
+      inner join productCategories on productCategories.category_id=products.category_id
+      where products.product_id=?
+      """,[id]);
+
+    return data.map((data)=>Product.fromMap(data)).toList();
+  }
   
   
   Future<int> insert(Product prod) async {
@@ -33,9 +44,12 @@ class ProductHandler {
             product_size,
             product_price,
             product_quantity,
+            mainImageUrl,
+            sub1ImageUrl,
+            sub2ImageUrl,
             product_released_date,
             created_at
-   ) values (?,?,?,?,?,?,?,?,?,?,?,?) 
+   ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
       """,[
         prod.store_id,
         prod.category_id,
@@ -47,6 +61,9 @@ class ProductHandler {
         prod.product_size,
         prod.product_price,
         prod.product_quantity,
+        prod.mainImageUrl,
+        prod.sub1ImageUrl,
+        prod.sub2ImageUrl,
         prod.product_released_date.toString(),
         DateTime.now().toString()
       ]);
@@ -66,6 +83,9 @@ class ProductHandler {
             product_size=?,
             product_price=?,
             product_quantity=?,
+            mainImageUrl=?,
+            sub1ImageUrl=?,
+            sub2ImageUrl=?,
             product_released_date=?
             where product_id=?
       """,[
@@ -79,6 +99,9 @@ class ProductHandler {
         prod.product_size,
         prod.product_price,
         prod.product_quantity,
+        prod.mainImageUrl,
+        prod.sub1ImageUrl,
+        prod.sub2ImageUrl,
         prod.product_released_date.toString(),
         prod.product_id
       ]);

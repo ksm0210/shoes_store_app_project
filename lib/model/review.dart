@@ -1,6 +1,7 @@
 class Review {
   int? review_id;
   int customer_id;
+  String? customer_name;
   int product_id;
   int review_rating;
   String? review_content;
@@ -17,6 +18,7 @@ class Review {
   Review.fromMap(Map<String, dynamic> res)
       :
         customer_id = res['customer_id'],
+        customer_name = res['customer_name'],
         product_id = res['product_id'],
         review_rating = res['review_rating'],
         review_content = res['review_content'],

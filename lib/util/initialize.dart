@@ -23,6 +23,9 @@ class Initialize {
             product_size integer,
             product_price integer,
             product_quantity integer,
+            mainImageUrl text,
+            sub1ImageUrl text,
+            sub2ImageUrl text,
             product_released_date text,
             created_at text
           )

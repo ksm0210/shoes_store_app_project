@@ -30,7 +30,7 @@ class _OrderViewState extends State<OrderView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    initializeData();
+    // initializeData();
   } 
 
   // initxx() async{
