@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; 
 import 'package:shoes_store_app_project/view/my_page.dart';
 import 'package:shoes_store_app_project/view/shopping_cart.dart';
 import 'package:shoes_store_app_project/view/search_result.dart'; 
-import 'package:shoes_store_app_project/view/detail_view.dart'; // detail_view.dart import 추가
+import 'package:shoes_store_app_project/view/detail_view.dart'; 
+import 'package:shoes_store_app_project/util/controllers.dart'; // AppController, CartController 사용
+
+// MainScreenState에서 사용할 AppController 인스턴스를 주입합니다.
+final AppController appController = Get.put(AppController()); 
+final CartController cartController = Get.find<CartController>(); // CartController도 Find합니다.
+
 
 void main() {
+  // main에서 GetMaterialApp 사용과 컨트롤러 주입을 가정합니다.
+  // Get.put(AppController());
+  // Get.put(CartController(), permanent: true);
   runApp(const MyApp());
 }
 
@@ -13,13 +23,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    // GetX 스낵바를 사용하기 위해 GetMaterialApp 사용
+    return GetMaterialApp( 
       debugShowCheckedModeBanner: false,
       title: 'Stitch Design',
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Noto Sans KR', // 시스템에 폰트가 없으면 기본 폰트로 대체됩니다.
+        fontFamily: 'Noto Sans KR', 
         useMaterial3: true,
+        // AppBar 배경색 및 아이콘 색상 기본 설정
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          iconTheme: IconThemeData(color: Colors.black),
+          elevation: 0,
+        ),
       ),
       home: const MainScreen(),
     );
@@ -34,7 +51,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void _onItemTapped(int index) {
     if (index == 3) {
@@ -49,14 +66,17 @@ class _MainScreenState extends State<MainScreen> {
         context,
         MaterialPageRoute(builder: (context) => const ShoppingCart()),
       );
+    } else if (index == 1) { 
+      // 카테고리 (인덱스 1): Drawer 열기
+      _scaffoldKey.currentState?.openDrawer();
     } else if (index == 2) {
-      // 검색 (인덱스 2)
+      // 검색 (인덱스 2): 검색 모달 열기
+      appController.changePage(index); 
       _showSearchBottomSheet();
-    } else {
-      // 다른 탭
-      setState(() {
-        _selectedIndex = index;
-      });
+    } 
+    else {
+      // 홈 (인덱스 0)
+      appController.changePage(index);
     }
   }
 
@@ -70,7 +90,6 @@ class _MainScreenState extends State<MainScreen> {
       ),
       builder: (BuildContext context) {
         return Padding(
-          // 키보드가 올라올 때 BottomSheet도 함께 올라오도록 Padding 설정
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
             top: 20,
@@ -92,8 +111,70 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       },
+    ).whenComplete(() {
+      if (appController.currentIndex.value == 2) {
+        appController.changePage(0);
+      }
+    });
+  }
+  
+  // -----------------------------------------------------------
+  // 알림 팝업창 (Get.dialog 사용)
+  // -----------------------------------------------------------
+  void _showNotificationDialog() {
+    // 더미 알림 데이터
+    final List<Map<String, dynamic>> notifications = [
+      {'icon': Icons.store, 'title': '픽업 준비 완료', 'subtitle': '강남 플래그십 스토어에서 픽업 가능합니다.', 'date': '5분 전'},
+      {'icon': Icons.credit_card, 'title': '결제 완료', 'subtitle': '에어 조던 1 외 1건, 결제가 완료되었습니다.', 'date': '1시간 전'},
+      {'icon': Icons.inventory, 'title': '재고 입고 알림', 'subtitle': '위시리스트의 에어 포스 1 (250) 재고가 들어왔습니다!', 'date': '어제'},
+    ];
+
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Text('알림', style: TextStyle(fontWeight: FontWeight.bold)),
+        contentPadding: EdgeInsets.zero,
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Divider(height: 1, color: Colors.grey),
+              if (notifications.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Text("새로운 알림이 없습니다."),
+                )
+              else
+                ...notifications.map((notif) => Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(notif['icon'] as IconData, color: Colors.black),
+                      title: Text(notif['title'] as String, style: const TextStyle(fontWeight: FontWeight.w500)),
+                      subtitle: Text(notif['subtitle'] as String),
+                      trailing: Text(notif['date'] as String, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+                      onTap: () {
+                        Get.back(); // 팝업 닫기
+                        // 상세 알림 페이지로 이동 로직 추가
+                      },
+                    ),
+                    const Divider(height: 1, color: Color(0xFFEEEEEE), indent: 16, endIndent: 16),
+                  ],
+                )).toList(),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('닫기', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
     );
   }
+
 
   Widget _buildSearchField() {
     TextEditingController controller = TextEditingController();
@@ -103,7 +184,7 @@ class _MainScreenState extends State<MainScreen> {
       textInputAction: TextInputAction.search,
       onSubmitted: (query) {
         if (query.isNotEmpty) {
-          Navigator.pop(context); // BottomSheet 닫기
+          Navigator.pop(context); 
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -132,21 +213,88 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // 제품 상세 페이지로 이동하는 공통 함수
-  // main_screen.dart 내 _MainScreenState
-// 제품 상세 페이지로 이동하는 공통 함수 (수정됨)
-   void _navigateToDetail(Map<String, String> product) {
-    // DetailScreen의 생성자 인자에 맞게 Map 데이터를 분해하여 전달
+  void _navigateToDetail(Map<String, String> product) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailScreen( // 클래스명을 DetailScreen으로 수정
+        builder: (context) => DetailScreen( 
           title: product['title']!,
           subtitle: product['subtitle']!,
           imageUrl: product['image']!,
-          price: "₩139,000", // DetailScreen 더미 데이터에 맞춰 임의 가격 지정
-          // description: 기본값 사용
+          price: "₩139,000", 
         ),
+      ),
+    );
+  }
+  
+  // -----------------------------------------------------------
+  // 🚨 카테고리 Drawer 디자인 개선
+  // -----------------------------------------------------------
+  Widget _buildDrawer(BuildContext context) {
+    final List<String> shoeCategories = [
+      '라이프스타일', '러닝화', '농구화', '트레이닝', '축구화', 
+      '테니스화', '골프화', '샌들/슬리퍼', '부츠', '키즈', '악세사리', '의류'
+    ];
+
+    return Drawer(
+      // 드로어 너비를 조금 줄여 콘텐츠에 집중
+      width: MediaQuery.of(context).size.width * 0.75, 
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 드로어 헤더 (AppBar 스타일과 유사하게)
+          Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 16, 
+              left: 16, 
+              right: 16, 
+              bottom: 16
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '카테고리',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.black),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
+          ),
+          
+          const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+          
+          // 카테고리 목록
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              itemCount: shoeCategories.length,
+              separatorBuilder: (context, index) => const Divider(height: 1, thickness: 0.5, color: Color(0xFFF0F0F0)),
+              itemBuilder: (context, index) {
+                final category = shoeCategories[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.pop(context); 
+                    Get.snackbar("탐색", "$category 카테고리를 검색합니다.", snackPosition: SnackPosition.BOTTOM);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(category, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                        const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -154,67 +302,86 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Header
+    return Obx(() => Scaffold(
+      key: _scaffoldKey, 
+      drawer: _buildDrawer(context), 
+      
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        titleSpacing: 16,
-        leadingWidth: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Logo (SVG Path converted to CustomPaint)
-            SizedBox(
-              width: 50,
-              height: 20,
-              child: CustomPaint(painter: LogoPainter()),
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.search, color: Colors.black),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
+        titleSpacing: 0,
+        centerTitle: true, 
+        
+        // 카테고리 버튼 (Drawer 열기)
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: Colors.black),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hero Section
-            _buildHeroSection(),
-            const SizedBox(height: 16),
-
-            // Section 1: 최신제품 (Horizontal Scroll)
-            const SectionTitle(title: "최신제품"),
-            const SizedBox(height: 12),
-            _buildNewArrivals(),
-            const SizedBox(height: 16),
-
-            // Section 2: 인기제품 (Grid)
-            const SectionTitle(title: "인기제품"),
-            const SizedBox(height: 12),
-            _buildPopularProducts(),
-            const SizedBox(height: 16),
-
-            // Section 3: 전체제품 (Categories)
-            const SectionTitle(title: "전체제품"),
-            const SizedBox(height: 12),
-            _buildAllProducts(),
-            const SizedBox(height: 24),
-          ],
+        
+        // 로고 중앙 정렬
+        title: SizedBox(
+          width: 50,
+          height: 20,
+          child: CustomPaint(painter: LogoPainter()),
         ),
+        
+        actions: [
+          // 🚨 알림 아이콘 (팝업 기능 추가)
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.black),
+            onPressed: _showNotificationDialog, // 알림 팝업 함수 연결
+          ),
+          // 장바구니 아이콘 (배지 기능 추가)
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_bag_outlined, color: Colors.black),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ShoppingCart()));
+                },
+              ),
+              // 🚨 장바구니 배지 추가
+              Obx(() {
+                if (cartController.cartItems.isEmpty) return const SizedBox.shrink();
+                return Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      cartController.cartItems.length.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ],
       ),
+      
+      body: IndexedStack(
+        index: appController.currentIndex.value,
+        children: [
+          _buildHomeScreenContent(context), 
+          Container(), 
+          _buildSearchField(), 
+          const MyPage(), 
+          const ShoppingCart(), 
+        ],
+      ),
+      
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           border: Border(top: BorderSide(color: Colors.grey.shade200)),
@@ -223,7 +390,7 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: Colors.white.withOpacity(0.9),
           elevation: 0,
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
+          currentIndex: appController.currentIndex.value,
           selectedItemColor: Colors.black,
           unselectedItemColor: Colors.grey,
           selectedFontSize: 10,
@@ -232,25 +399,57 @@ class _MainScreenState extends State<MainScreen> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: '홈'),
             BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: '카테고리'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'), 
             BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: '마이페이지'),
             BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_outlined), label: '장바구니'),
           ],
         ),
       ),
+    ));
+  }
+  
+  // -----------------------------------------------------------
+  // 나머지 _buildXxx 메서드 (변경 없음)
+  // -----------------------------------------------------------
+  Widget _buildHomeScreenContent(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeroSection(),
+          const SizedBox(height: 16),
+          const SectionTitle(title: "최신제품"),
+          const SizedBox(height: 12),
+          _buildNewArrivals(),
+          const SizedBox(height: 16),
+          const SectionTitle(title: "인기제품"),
+          const SizedBox(height: 12),
+          _buildPopularProducts(),
+          const SizedBox(height: 16),
+          const SectionTitle(title: "전체제품"),
+          const SizedBox(height: 12),
+          _buildAllProducts(),
+          const SizedBox(height: 24),
+        ],
+      ),
     );
   }
 
   Widget _buildHeroSection() {
+    final heroProduct = {
+      "title": "최신 스니커즈 출시 (한정판)",
+      "subtitle": "프리미엄 컬렉션",
+      "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDHi22KsHGy4wL-HzW9V2Qkn9-63YqqrkRffjXiHpq4nuP46eaRhAJrRbkCQTShID2ZjvPBDcqYFgNvBMkEl0Yy0gmNapTPTtY_lTtCthFAUQb1I0nC0ax0XTWspGWB2C-B2ZIbCk_D0UyTT5LSGL9FaYpKUZtWw1kiUIdax1g9HeSS2rMxpuKfjysexwCzB34HLV7i7PwWTC1qOHKFegVJM410ROXXHIDW1zLnKNx0ECBq3RGRfzUGJfJi9Csg2LrBVlsiKDxMnR4"
+    };
+    
     return Container(
       width: double.infinity,
-      // Aspect ratio 4/5 approximation or fixed height
       height: 450,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        image: const DecorationImage(
-          image: NetworkImage(
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuDHi22KsHGy4wL-HzW9V2Qkn9-63YqqrkRffjXiHpq4nuP46eaRhAJrRbkCQTShID2ZjvPBDcqYFgNvBMkEl0Yy0gmNapTPTtY_lTtCthFAUQb1I0nC0ax0XTWspGWB2C-B2ZIbCk_D0UyTT5LSGL9FaYpKUZtWw1kiUIdax1g9HeSS2rMxpuKfjysexwCzB34HLV7i7PwWTC1qOHKFegVJM410ROXXHIDW1zLnKNx0ECBq3RGRfzUGJfJi9Csg2LrBVlsiKDxMnR4"),
+        image: DecorationImage(
+          image: NetworkImage(heroProduct['image']!),
           fit: BoxFit.cover,
         ),
       ),
@@ -273,9 +472,9 @@ class _MainScreenState extends State<MainScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "최신 스니커즈 출시",
-                  style: TextStyle(
+                Text(
+                  heroProduct['title']!,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -283,13 +482,13 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  "최신 스타일을 만나보세요.",
-                  style: TextStyle(color: Colors.white, fontSize: 12),
+                Text(
+                  heroProduct['subtitle']!,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => _navigateToDetail(heroProduct), 
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
@@ -312,7 +511,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
+  
   Widget _buildNewArrivals() {
     final products = [
       {
@@ -338,7 +537,7 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     return SizedBox(
-      height: 160, // Image(aspect square) + Text height
+      height: 160, 
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: products.length,
@@ -348,7 +547,7 @@ class _MainScreenState extends State<MainScreen> {
           return GestureDetector(
             onTap: () => _navigateToDetail(item),
             child: SizedBox(
-              width: 110, // Approx 1/3 of screen width
+              width: 110, 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -474,7 +673,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// SectionTitle, LogoPainter는 변경 없음
 class SectionTitle extends StatelessWidget {
   final String title;
   const SectionTitle({super.key, required this.title});
@@ -500,7 +698,6 @@ class RelativePositionedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 이 섹션 (전체제품)은 제품 상세 이동 로직이 없으므로 GestureDetector를 추가하지 않았습니다.
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.5 - 24,
       child: ClipRRect(
@@ -541,13 +738,11 @@ class LogoPainter extends CustomPainter {
       ..color = Colors.black
       ..style = PaintingStyle.fill;
 
-    // Viewbox 0 0 100 40 -> Scale to fit size
     final scaleX = size.width / 100;
     final scaleY = size.height / 40;
     canvas.scale(scaleX, scaleY);
 
     final path = Path();
-    // Path d="M100 0L60 0L60 10L90 10L90 15L60 15L60 25L90 25L90 30L60 30L60 40L100 40ZM40 0L0 0L0 40L40 40L40 30L10 30L10 25L40 25L40 15L10 15L10 10L40 10Z"
     path.moveTo(100, 0);
     path.lineTo(60, 0);
     path.lineTo(60, 10);

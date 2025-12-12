@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/product_model.dart'; 
 
-// DetailView의 생성자 정보를 반영하여 DetailScreen을 수정합니다.
+// ------------------------------------------------------------------
+// 주의: 아래 import 경로는 실제 프로젝트 구조에 맞게 수정해야 합니다.
+// ------------------------------------------------------------------
+import 'package:shoes_store_app_project/view/shopping_cart.dart'; // ShoppingCart 위젯 경로
+import 'package:shoes_store_app_project/view/order.dart'; // OrderScreen 위젯 경로 (임시 경로, 실제 경로로 수정 필요)
+import '../util/controllers.dart'; // CartController 파일 경로
+// import '../models/product_model.dart'; // ProductModel 파일 경로
+// ------------------------------------------------------------------
+
 class DetailScreen extends StatefulWidget {
   // main_screen에서 넘겨주는 데이터들
   final String title;
@@ -23,26 +33,44 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  // GetX: CartController 인스턴스화 및 주입
+  final CartController cartController = Get.put(CartController());
+  
+  late final PageController _pageController;
+
   // 상태 관리 변수들
   int _currentImageIndex = 0;
   int _selectedColorIndex = 0;
   bool _isLiked = false;
 
-  // 더미 데이터: 이미지 리스트 (넘겨받은 imageUrl을 첫 번째 이미지로 사용하도록 변경)
-  // 실제 제품의 여러 이미지를 구현하려면 이 리스트를 DetailScreen의 인자로 받아야 하지만,
-  // 현재는 넘겨받은 imageUrl을 포함하고 기존 더미를 유지합니다.
+  // A1: 선택 가능한 사이즈 목록 (220부터 290까지 5단위)
+  final List<String> _availableSizes = [
+    for (int size = 220; size <= 290; size += 5) size.toString()
+  ];
+  // A1: 현재 선택된 사이즈
+  String? _selectedSize;
+
+  // 더미 데이터: 이미지 리스트
   late final List<String> _productImages;
 
   @override
   void initState() {
     super.initState();
-    // 넘겨받은 imageUrl을 첫 번째 이미지로 설정 (다른 색상 더미는 유지)
+    
+    _pageController = PageController();
+
     _productImages = [
       widget.imageUrl, // main_screen에서 넘겨받은 이미지
-      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/air-force-1-07-mens-shoes-jBrhBr.png", // 흰색 (대체)
-      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/fc4622c4-2769-4665-aa6e-a2c06d316662/air-force-1-07-mens-shoes-jBrhBr.png", // 검정 (대체)
-      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa503541-c9d3-455b-9285-a77d70428d02/air-force-1-07-mens-shoes-jBrhBr.png", // 된장 (대체)
+      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/air-force-1-07-mens-shoes-jBrhBr.png", 
+      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/fc4622c4-2769-4665-aa6e-a2c06d316662/air-force-1-07-mens-shoes-jBrhBr.png", 
+      "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa503541-c9d3-455b-9285-a77d70428d02/air-force-1-07-mens-shoes-jBrhBr.png", 
     ];
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -68,17 +96,17 @@ class _DetailScreenState extends State<DetailScreen> {
                   // 3. 상품 정보 (타이틀, 가격)
                   const SizedBox(height: 20),
                   Text(
-                    widget.title, // 넘겨받은 title 사용
+                    widget.title, 
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.subtitle, // 넘겨받은 subtitle 사용
+                    widget.subtitle, 
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    widget.price, // 넘겨받은 price 사용
+                    widget.price, 
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
                   ),
 
@@ -86,7 +114,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   const SizedBox(height: 30),
                   _buildSizeSelector(),
 
-                  // 5. 메인 액션 버튼들 (장바구니, 구매, 위시)
+                  // 5. 메인 액션 버튼들 (구매하기, 장바구니, 위시)
                   const SizedBox(height: 20),
                   _buildActionButtons(),
 
@@ -96,13 +124,13 @@ class _DetailScreenState extends State<DetailScreen> {
                   
                   // 제품 설명 추가 (description 활용)
                   const SizedBox(height: 20),
-                  Text(
+                  const Text(
                     "제품 설명",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.description, // 넘겨받은 description 사용
+                    widget.description, 
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
                   ),
                   const Divider(height: 60, thickness: 1, color: Color(0xFFEEEEEE)),
@@ -124,7 +152,6 @@ class _DetailScreenState extends State<DetailScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavBar(),
     );
   }
 
@@ -138,7 +165,7 @@ class _DetailScreenState extends State<DetailScreen> {
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
-        widget.title, // 넘겨받은 title 사용
+        widget.title, 
         style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
       ),
       centerTitle: true,
@@ -155,26 +182,28 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // 이미지 슬라이더
+  // 이미지 슬라이더 (A2: PageController 연동)
   Widget _buildImageCarousel() {
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
         AspectRatio(
-          aspectRatio: 1.1, // 정사각형에 가깝게
+          aspectRatio: 1.1, 
           child: PageView.builder(
+            controller: _pageController, 
             itemCount: _productImages.length,
             onPageChanged: (index) {
               setState(() {
                 _currentImageIndex = index;
+                _selectedColorIndex = index;
               });
             },
             itemBuilder: (context, index) {
               return Container(
-                color: const Color(0xFFF5F5F5), // 연한 회색 배경
+                color: const Color(0xFFF5F5F5), 
                 child: Image.network(
                   _productImages[index],
-                  fit: BoxFit.cover, // 사진 꽉 채우기 or contain
+                  fit: BoxFit.cover, 
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
                     return const Center(child: CircularProgressIndicator());
@@ -205,7 +234,7 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // 색상 선택 리스트
+  // 색상 선택 리스트 (A2: PageController 연동)
   Widget _buildColorSelector() {
     return Container(
       height: 80,
@@ -217,8 +246,13 @@ class _DetailScreenState extends State<DetailScreen> {
             onTap: () {
               setState(() {
                 _selectedColorIndex = index;
-                // 실제 앱에선 여기서 Carousel 페이지도 이동시킬 수 있음
               });
+              
+              _pageController.animateToPage(
+                index, 
+                duration: const Duration(milliseconds: 300), 
+                curve: Curves.easeInOut
+              );
             },
             child: Container(
               width: 60,
@@ -242,65 +276,171 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // 사이즈 선택 버튼 (드롭다운 스타일)
+  // 사이즈 선택 버튼 (A1: 가로 스크롤 선택 버튼)
   Widget _buildSizeSelector() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Text(
-            "250 사이즈",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: Text(
+            _selectedSize == null 
+              ? "사이즈를 선택해주세요" 
+              : "선택된 사이즈: ${_selectedSize!}",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          Icon(Icons.keyboard_arrow_down, color: Colors.black),
-        ],
-      ),
+        ),
+        
+        SizedBox(
+          height: 50, 
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _availableSizes.map((size) {
+                final isSelected = _selectedSize == size;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedSize = isSelected ? null : size;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.black : Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(
+                        color: isSelected ? Colors.black : Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Text(
+                      size,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  // 장바구니/구매/위시 버튼
+  // 장바구니/구매/위시 버튼 (구매 로직 수정됨)
   Widget _buildActionButtons() {
+    final bool isSizeSelected = _selectedSize != null;
+    
+    // 장바구니 기능 추가 함수
+    void _handleAddToCart() {
+      if (!isSizeSelected) {
+        Get.snackbar("알림", "사이즈를 선택해주세요.",
+            snackPosition: SnackPosition.BOTTOM, 
+            backgroundColor: Colors.red.withOpacity(0.8),
+            colorText: Colors.white
+        );
+        return;
+      }
+      
+      final selectedProduct = ProductModel(
+        title: widget.title,
+        price: widget.price,
+        imageUrl: widget.imageUrl,
+        selectedSize: _selectedSize!,
+        selectedColorImageUrl: _productImages[_selectedColorIndex],
+      );
+      
+      // 장바구니에 추가 (Map 형태로 변환하여 Controller에 전달)
+      cartController.addToCart({
+        'title': selectedProduct.title,
+        'price': selectedProduct.price,
+        'selectedSize': selectedProduct.selectedSize,
+        'selectedColorImageUrl': selectedProduct.selectedColorImageUrl,
+      });
+
+      // 장바구니 화면으로 이동 (Navigator.push 사용)
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ShoppingCart()), 
+      );
+    }
+    
+    // 구매하기 기능 추가 함수 (수정됨: 구매 전에 아이템을 장바구니에 추가)
+    void _handlePurchase() {
+      if (!isSizeSelected) {
+        Get.snackbar("알림", "사이즈를 선택해주세요.",
+            snackPosition: SnackPosition.BOTTOM, 
+            backgroundColor: Colors.red.withOpacity(0.8),
+            colorText: Colors.white
+        );
+        return;
+      }
+
+      final selectedProduct = ProductModel(
+        title: widget.title,
+        price: widget.price,
+        imageUrl: widget.imageUrl,
+        selectedSize: _selectedSize!,
+        selectedColorImageUrl: _productImages[_selectedColorIndex],
+      );
+      
+      // 🚨 핵심 수정: 구매 페이지가 장바구니 마지막 아이템을 참조하므로, 
+      // 구매 전에 장바구니에 아이템을 추가해야 합니다.
+      cartController.addToCart({
+        'title': selectedProduct.title,
+        'price': selectedProduct.price,
+        'selectedSize': selectedProduct.selectedSize,
+        'selectedColorImageUrl': selectedProduct.selectedColorImageUrl,
+      });
+      
+      // 구매 페이지로 이동
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => OrderScreen()), 
+      );
+    }
+
+
     return Column(
       children: [
-        // 장바구니 (검정)
+        // 1. 구매하기 (검정색 버튼)
         SizedBox(
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: _handlePurchase,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               elevation: 0,
             ),
             child: const Text(
-              "장바구니",
+              "구매하기",
               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
         ),
         const SizedBox(height: 12),
-        // 구매하기 & 위시리스트
+        // 2. 장바구니 & 위시리스트
         Row(
           children: [
             Expanded(
               child: SizedBox(
                 height: 56,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: _handleAddToCart,
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.grey.shade300),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   child: const Text(
-                    "구매하기",
+                    "장바구니",
                     style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -308,8 +448,8 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             const SizedBox(width: 12),
             SizedBox(
-              width: 56, // 위시리스트 버튼은 동그랗거나 작게
-              height: 56, // 높이 맞춤
+              width: 56,
+              height: 56, 
               child: OutlinedButton(
                 onPressed: () {
                   setState(() {
@@ -319,7 +459,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
                   side: BorderSide(color: Colors.grey.shade300),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), // 원형에 가깝게
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), 
                 ),
                 child: Icon(
                   _isLiked ? Icons.favorite : Icons.favorite_border,
@@ -333,7 +473,7 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // 안내 박스
+  // 안내 박스 (변화 없음)
   Widget _buildInfoBox() {
     return Container(
       width: double.infinity,
@@ -364,12 +504,12 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // 추천 상품 가로 스크롤
+  // 추천 상품 가로 스크롤 (변화 없음)
   Widget _buildRecommendations() {
     final List<Map<String, String>> recItems = [
-      {"name": "리액트 인피니티 런", "price": "₩149,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuDDt5iFoapJl0uzAcARC3gJPbzvQs0B0DGYyikn9yhKPgDeNRWgFMpXnUr543Jf4vgND33BjX-omWHAi_KpAfShPPreEqkR-yCUnKJky7U2aAQmce0EwmhHCpdCcoe97sMNXf47C-paUuhwWsWrvESOpXxkCknBejgTx2jGR5dPFZV9By4ISUZVn3ztQtLeovreJkxKQgA-_ejVKAy8CBbnG6yRp_dqSedQE7Ye-Mjk7jWUv2utjph7EKzhqKXkuJRpZia9Qa2XD1w"},
+      {"name": "리액트 인피니티 런", "price": "₩149,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuDDt5iFoapJl0uzAcARC3gJPbzvQs0B0DGYyikn9yhKPgDeNRWgFMpXnUr543Jf4vgND33BjX-omWHAi_KpAfShPPreEqkRffjXiHpq4nuP46eaRhAJrRbkCQTShID2ZjvPBDcqYFgNvBMkEl0Yy0gmNapTPTtY_lTtCthFAUQb1I0nC0ax0XTWspGWB2C-B2ZIbCk_D0UyTT5LSGL9FaYpKUZtWw1kiUIdax1g9HeSS2rMxpuKfjysexwCzB34HLV7i7PwWTC1qOHKFegVJM410ROXXHIDW1zLnKNx0ECBq3RGRfzUGJfJi9Csg2LrBVlsiKDxMnR4"},
       {"name": "에어 조던 1", "price": "₩179,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAWT5XtZPPiASQ8v75AKCbnfIgfTjhgk5Dj_gZr9bzaJQKrKplCfMVmgOgJtbWv4j-r7MrvNRUHqIPXGKxCvdfeAcW-08p1c3rOzAnacZFQ6f9b12Tv2f6p2rVGF3zee4uGNrau6nuOEuMEdeqMnPdhDFXGGkJu5qZhCiV4v2WnB1nLp_8rkPfnBewikUnse8MFk4Uo06qfh8-sq_Rvly7PPKRpL3vB5wu4dwzd_aVDZANNvo0slxuaHN9brDT6P0XM01CiHxmTgaU"},
-      {"name": "블레이저 미드", "price": "₩119,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm8qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A"},
+      {"name": "블레이저 미드", "price": "₩119,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm3qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A"},
     ];
 
     return SingleChildScrollView(
@@ -411,12 +551,11 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // 리뷰 섹션
+  // 리뷰 섹션 (변화 없음)
   Widget _buildReviewSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 평점 헤더
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -435,7 +574,6 @@ class _DetailScreenState extends State<DetailScreen> {
           ],
         ),
         const SizedBox(height: 20),
-        // 평점 그래프 (간소화)
         _buildRatingBar(5, 0.5),
         _buildRatingBar(4, 0.3),
         _buildRatingBar(3, 0.1),
@@ -445,7 +583,6 @@ class _DetailScreenState extends State<DetailScreen> {
         const SizedBox(height: 30),
         const Text("리뷰 (1,234)", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        // 개별 리뷰 아이템
         _buildReviewItem("지우", "2023년 10월 26일", 5, "정말 편하고 디자인도 예뻐요! 매일 신고 다닙니다."),
         _buildReviewItem("민준", "2023년 10월 20일", 4, "사이즈가 조금 크게 나온 것 같아요. 그래도 만족합니다."),
       ],
@@ -515,52 +652,13 @@ class _DetailScreenState extends State<DetailScreen> {
             children: [
               const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey),
               const SizedBox(width: 4),
-              Text("${(stars * 2) + 3}", style: const TextStyle(fontSize: 12, color: Colors.grey)), // 더미 숫자
+              Text("${(stars * 2) + 3}", style: const TextStyle(fontSize: 12, color: Colors.grey)), 
               const SizedBox(width: 16),
               const Icon(Icons.thumb_down_alt_outlined, size: 16, color: Colors.grey),
             ],
           )
         ],
       ),
-    );
-  }
-
-  // 하단 네비게이션 바 (MainScreen과 스타일 맞춤)
-  Widget _buildBottomNavBar() {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: const [
-          _NavIcon(icon: Icons.home_filled, label: "홈"),
-          _NavIcon(icon: Icons.search, label: "탐색"),
-          _NavIcon(icon: Icons.favorite_border, label: "위시리스트"),
-          _NavIcon(icon: Icons.shopping_bag_outlined, label: "장바구니"),
-          _NavIcon(icon: Icons.person_outline, label: "프로필"),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _NavIcon({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: Colors.grey, size: 24),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-      ],
     );
   }
 }
