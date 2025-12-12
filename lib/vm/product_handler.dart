@@ -117,22 +117,19 @@ class ProductHandler {
   }
 
   // 검색부분
-  Future<List<Map<String, dynamic>>> searchProducts(String query) async {
+  Future<List<Product>> searchProducts(String query) async {
     final Database db = await Initialize.initDatabase();
 
     // like 검색 (대소문자/공백까지 느슨하게 하려면 query 가공 가능)
     final String q = "%${query.trim()}%";
 
-    // 여기에 product_image 넣으면 나옴
-    final result = await db.rawQuery(
-      """
-      SELECT product_id, product_name, product_price
-      FROM products
-      WHERE product_name LIKE ?
-      ORDER BY created_at DESC
-    """,
-      [q],
-    );
+    // // 여기에 product_image 넣으면 나옴
+    // final result = await db.rawQuery("""
+    //   SELECT product_id, product_name, product_price, product_
+    //   FROM products
+    //   WHERE product_name LIKE ?
+    //   ORDER BY created_at DESC
+    // """, [q]);
 
     final data = await db.rawQuery(
       """

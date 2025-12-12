@@ -10,6 +10,7 @@ import 'package:shoes_store_app_project/util/controllers.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/util/initializeData.dart';
 import 'package:shoes_store_app_project/util/utils.dart';
+import 'package:shoes_store_app_project/view/home.dart';
 import 'package:shoes_store_app_project/vm/category_handler.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
 import 'package:shoes_store_app_project/vm/manufacture_handler.dart';
@@ -34,7 +35,7 @@ class _OrderViewState extends State<OrderView> {
 
   List<Order> orders = Get.arguments ?? [];
   late List<Store> storeList = [];
-      final CartController controller = Get.find<CartController>();
+  final CartController controller = Get.find<CartController>();
   // late List<Order> orderList=[];
 
   @override
@@ -50,7 +51,6 @@ class _OrderViewState extends State<OrderView> {
     controller.dispose();
     super.dispose();
   }
-  
 
   getData() async {
     storeList = await storeHandler.selectQuery(0);
@@ -251,9 +251,9 @@ class _OrderViewState extends State<OrderView> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              Get.back();
-              Get.back();
-              Get.back();
+              Get.offAll(
+                () => const Home(),
+              ); // 바로 Home으로 새로 보내버리기(인기제품 setstate때문에)
             },
             child: Text('확인'),
           ),
