@@ -44,6 +44,7 @@ class Initialize {
           )
         """);
 
+        // employee table
         await db.execute("""
         CREATE TABLE Employees (
           employee_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,6 +59,23 @@ class Initialize {
         )
         """);
 
+        // store table
+        await db.execute("""
+        CREATE TABLE Store (
+          store_id INTEGER PRIMARY KEY AUTOINCREMENT,
+          store_name TEXT NOT NULL,
+          store_address TEXT,
+          store_phone TEXT,
+          store_zipcode TEXT,
+          store_lat REAL, 
+          store_lng REAL, 
+          store_city TEXT,
+          store_state TEXT,
+          created_at TEXT NOT NULL
+        )
+        """);
+
+        // manufactures table
         await db.execute("""
          CREATE TABLE Manufactures (
           manufacture_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,6 +87,7 @@ class Initialize {
         )
         """);
 
+        // orders table
         await db.execute("""
         CREATE TABLE Orders (
           order_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,6 +108,7 @@ class Initialize {
           -- FOREIGN KEY (order_store_id) REFERENCES Stores(store_id)
         */
 
+        // orderreceives table
         await db.execute("""
         CREATE TABLE OrderReceives (
           seq INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,6 +131,8 @@ class Initialize {
   -- FOREIGN KEY (product_id) REFERENCES Products(product_id),
   -- FOREIGN KEY (order_store_id) REFERENCES Stores(store_id)
         */
+
+        // orderreturns table
         await db.execute("""
         CREATE TABLE OrderReturns (
         seq INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -127,6 +149,7 @@ class Initialize {
   )
         """);
 
+        // productcategories table
         await db.execute("""
        CREATE TABLE ProductCategories (
           category_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,6 +157,8 @@ class Initialize {
           created_at TEXT NOT NULL
         )
         """);
+
+        // reviews table
         await db.execute("""
         CREATE TABLE Reviews (
           review_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -148,8 +173,8 @@ class Initialize {
         )
         """);
 
-        await db.execute("""
-      
+        // shoppingcarts table
+        await db.execute("""      
         CREATE TABLE ShoppingCarts (
           cart_seq_id INTEGER PRIMARY KEY AUTOINCREMENT,
           customer_id INTEGER NOT NULL,
@@ -158,6 +183,7 @@ class Initialize {
         )
         """);
 
+        // wishes table
         await db.execute("""
         CREATE TABLE Wishes (
           wish_id INTEGER PRIMARY KEY AUTOINCREMENT,

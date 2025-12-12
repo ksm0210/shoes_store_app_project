@@ -10,6 +10,8 @@ import 'package:shoes_store_app_project/vm/manufacture_handler.dart';
 import 'package:shoes_store_app_project/vm/product_handler.dart';
 
 initializeData() async {
+
+    
   
 
     ManufactureHandler manf = ManufactureHandler();
@@ -17,13 +19,15 @@ initializeData() async {
     // print('${manfs[0].manufacture_name}');
     await manf.insert(Manufacture(manufacture_name: '나이키', created_at: DateTime.now()));
     await manf.insert(Manufacture(manufacture_name: '아디다스', created_at: DateTime.now()));
+    await manf.insert(Manufacture(manufacture_name: '퓨마', created_at: DateTime.now()));
+    
 
     CategoryHandler cat = CategoryHandler();
     // List<ProductCategory> cats = await cat.selectQuery();
     // print('${cats[0].category_name}');
 
-    await cat.insert(ProductCategory(category_name: '런닝화', created_at: DateTime.now()));
     await cat.insert(ProductCategory(category_name: '스니커즈', created_at: DateTime.now()));
+    await cat.insert(ProductCategory(category_name: '런닝화', created_at: DateTime.now()));
     await cat.insert(ProductCategory(category_name: '농구화', created_at: DateTime.now()));
 
 

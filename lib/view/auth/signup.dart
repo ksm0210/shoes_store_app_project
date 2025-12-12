@@ -272,22 +272,7 @@ class _SignupState extends State<Signup> {
                               colorText: Colors.black,
                             );
                           } else {
-                            Get.defaultDialog(
-                              title: "회원가입완료",
-                              middleText: "ShoesHouse의 회원이 되신 걸 환영합니다!",
-                              barrierDismissible: false,
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    insertSignUp();
-
-                                    Get.back();
-                                    Get.back();
-                                  },
-                                  child: Text('확인'),
-                                ),
-                              ],
-                            );
+                            showSignupSuccessDialog();
                           }
                         }
                       : null, // 동의 안 했으면 비활성화
@@ -618,6 +603,85 @@ class _SignupState extends State<Signup> {
       ),
     );
   }
+  // 회원가입 완료 디자인
+  void showSignupSuccessDialog() {
+  Get.defaultDialog(
+    title: "",
+    barrierDismissible: false,
+    backgroundColor: Colors.white,
+    radius: 24,
+    contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // ✅ 초록 체크 아이콘
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Color(0xFFE7F6EC), // 옅은 초록 배경
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check_rounded,
+            color: Color(0xFF2E7D32),
+            size: 40,
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        const Text(
+          "회원가입 완료",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF212121),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        const Text(
+          "ShoesHouse의 회원이 되신 걸 환영합니다!",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: 14,
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              // ✅ 여기서 실제 저장하고 화면 닫기
+              insertSignUp();
+              Get.back(); // dialog 닫기
+              Get.back(); // signup 페이지 닫기(로그인으로)
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: const Text(
+              "확인",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 } // class
 
 /// 공통 입력 필드 위젯 (회색 배경 + 둥근 모서리)
