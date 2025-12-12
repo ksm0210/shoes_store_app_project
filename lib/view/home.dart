@@ -365,7 +365,8 @@ class _HomeState extends State<Home> {
         itemBuilder: (context, index) {
           final item = productList[index];
           return GestureDetector(
-            onTap: () =>Get.to(()=>ProductDetail(),arguments: item.product_id),//=> _navigateToDetail(item),
+            onTap: ()=> Get.to(()=>ProductDetail(),arguments: item.product_id)
+            ,//=> _navigateToDetail(item),
             child: SizedBox(
               width: 110, // Approx 1/3 of screen width
               child: Column(

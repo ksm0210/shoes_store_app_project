@@ -12,6 +12,17 @@ class OrderHandler {
     return data.map((data)=>Order.fromMap(data)).toList();
   }
 
+  // Future<List<Order>> selectQueryByProductId(int id) async {
+  //   Database db = await Initialize.initDatabase();
+  //   final data = await db.rawQuery("""
+  //   select orders.*,product from orders 
+  //   inner join products on orders.product_id = orders.product_id
+  //   """
+  // );
+
+  //   return data.map((data)=>Order.fromMap(data)).toList();
+  // }
+
   Future<int> insert(Order ord) async {
     Database db = await Initialize.initDatabase();
     return await db.rawInsert("""
@@ -22,16 +33,17 @@ class OrderHandler {
           order_store_id,
           order_quantity,
           order_total_price,
-          order_status
-   
-   ) values (?,?,?,?,?,?) 
+          order_status,
+          created_at
+   ) values (?,?,?,?,?,?,?) 
       """,[
         ord.customer_id,
         ord.product_id,
         ord.order_store_id,
         ord.order_quantity,
         ord.order_total_price,
-        ord.order_status
+        ord.order_status,
+        DateTime.now().toString()
       ]);
   }
 

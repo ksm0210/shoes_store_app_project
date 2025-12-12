@@ -33,8 +33,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   initData() async {
-    GlobalLoginData.categories = await categoryHandler.selectQuery();
     // await initializeData();
+    GlobalLoginData.categories = await categoryHandler.selectQuery();
   }
 
   @override

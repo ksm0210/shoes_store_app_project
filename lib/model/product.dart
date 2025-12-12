@@ -40,7 +40,7 @@ class Product{
   });
 
   Product.fromMap(Map<String,dynamic> json) : 
-
+  product_id = json['product_id'],
   store_id = json['store_id'],
   category_id = json['category_id'],
   manufacture_id = json['manufacture_id'],
