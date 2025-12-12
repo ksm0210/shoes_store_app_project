@@ -14,6 +14,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   // Property
+  late bool obscurePassword;       // 비밀번호 숨김 여부
   late CustomerHandler handler;
   late int value; // customer text 투명도
   late bool manager2Visible; // Visible value
@@ -23,6 +24,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
+    obscurePassword = true;
     handler = CustomerHandler();
     value = 20;
     manager2Visible = false;
@@ -83,7 +85,7 @@ class _LoginState extends State<Login> {
                 // 비밀번호 입력창
                 TextField(
                   controller: pwdController,
-                  obscureText: true,
+                  obscureText: obscurePassword,
                   decoration: InputDecoration(
                     hintText: "비밀번호",
                     filled: true,
@@ -92,6 +94,16 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide.none,
                     ),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        obscurePassword = !obscurePassword;
+                        setState(() {});
+                      }, 
+                      icon: Icon(
+                        obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey,
+                      )
+                    )
                   ),
                 ),
                 const SizedBox(height: 24),
