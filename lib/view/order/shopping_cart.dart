@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 // 경로를 그대로 사용합니다.
 import 'package:shoes_store_app_project/util/controllers.dart'; 
 
-class ShoppingCart extends StatelessWidget {
-  const ShoppingCart({super.key});
+class ShoppingCartView extends StatelessWidget {
+  const ShoppingCartView({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -330,7 +330,10 @@ class _ProductDetailState extends State<ProductDetail> {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              GlobalLoginData.shopping_cart.add(Order(customer_id: GlobalLoginData.customer_id, product_id: product_id, product_name: product!.product_name, order_store_id: product!.store_id, order_quantity: 1, order_total_price: product!.product_price, order_status: '요청',product_mainImageUrl: product!.mainImageUrl, created_at: DateTime.now()));
+              Get.back();
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

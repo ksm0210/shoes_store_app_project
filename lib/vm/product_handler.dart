@@ -111,21 +111,33 @@ class ProductHandler {
   }
 
    // 검색부분 
-   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
+   Future<List<Product>> searchProducts(String query) async {
     final Database db = await Initialize.initDatabase();
 
     // like 검색 (대소문자/공백까지 느슨하게 하려면 query 가공 가능)
     final String q = "%${query.trim()}%";
 
-    // 여기에 product_image 넣으면 나옴
-    final result = await db.rawQuery("""
-      SELECT product_id, product_name, product_price
-      FROM products
-      WHERE product_name LIKE ?
-      ORDER BY created_at DESC
-    """, [q]);
+    // // 여기에 product_image 넣으면 나옴
+    // final result = await db.rawQuery("""
+    //   SELECT product_id, product_name, product_price, product_
+    //   FROM products
+    //   WHERE product_name LIKE ?
+    //   ORDER BY created_at DESC
+    // """, [q]);
 
-    return result;
+    final data = await db.rawQuery("""
+      select products.*,productCategories.category_name,manufactures.manufacture_name from products 
+      inner join manufactures on products.manufacture_id = manufactures.manufacture_id
+      inner join productCategories on productCategories.category_id=products.category_id
+      where products.product_name like ? or productCategories.category_name like ?
+      order by products.product_released_date desc
+      """,[q,q]);
+
+    return data.map((data)=>Product.fromMap(data)).toList();
+
+
+
+    // return result;
   }
 
 }

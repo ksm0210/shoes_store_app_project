@@ -54,7 +54,7 @@ class _HomeState extends State<Home> {
       // 장바구니 (인덱스 4)
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const ShoppingCart()),
+        MaterialPageRoute(builder: (context) => const ShoppingCartView()),
       );
     } else if (index == 2) {
       // 검색 (인덱스 2)
@@ -110,13 +110,15 @@ class _HomeState extends State<Home> {
       textInputAction: TextInputAction.search,
       onSubmitted: (query) {
         if (query.isNotEmpty) {
-          Navigator.pop(context); // BottomSheet 닫기
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SearchResultPage(query: query),
-            ),
-          );
+          Get.back();
+          Get.to(()=>SearchResultPage(query: query) );
+          // Navigator.pop(context); // BottomSheet 닫기
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => SearchResultPage(query: query),
+          //   ),
+          // );
         }
       },
       decoration: InputDecoration(
@@ -407,12 +409,14 @@ class _HomeState extends State<Home> {
   Widget _buildPopularProducts() {
     final products = [
       {
-        "title": "에어 맥스 97",
+        "id": 1,
+        "title": "에어 조던",
         "subtitle": "남성 신발",
         "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDDt5iFoapJl0uzAcARC3gJPbzvQs0B0DGYyikn9yhKPgDeNRWgFMpXnUr543Jf4vgND33BjX-omWHAi_KpAfShPPreEqkR-yCUnKJky7U2aAQmce0EwmhHCpdCcoe97sMNXf47C-paUuhwWsWrvESOpXxkCknBejgTx2jGR5dPFZV9By4ISUZVn3ztQtLeovreJkxKQgA-_ejVKAy8CBbnG6yRp_dqSedQE7Ye-Mjk7jWUv2utjph7EKzhqKXkuJRpZia9Qa2XD1w"
       },
       {
-        "title": "에어 맥스 720",
+        "id": 2,
+        "title": "에어 맥스 90",
         "subtitle": "여성 신발",
         "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm8qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A"
       },
@@ -424,7 +428,8 @@ class _HomeState extends State<Home> {
           child: Padding(
             padding: EdgeInsets.only(right: item == products.last ? 0 : 12),
             child: GestureDetector(
-              onTap: () => _navigateToDetail(item),
+              // onTap: () => _navigateToDetail(item),
+              onTap: ()=>Get.to(()=>ProductDetail(),arguments: item['id']),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -435,7 +440,7 @@ class _HomeState extends State<Home> {
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.grey[100],
                         image: DecorationImage(
-                          image: NetworkImage(item['image']!),
+                          image: NetworkImage(item['image']!.toString()),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -443,12 +448,12 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    item['title']!,
+                    item['title']!.toString(),
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    item['subtitle']!,
+                    item['subtitle']!.toString(),
                     style: const TextStyle(fontSize: 10, color: Colors.grey),
                   ),
                 ],
@@ -490,9 +495,12 @@ class _HomeState extends State<Home> {
         separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final item = categories[index];
-          return RelativePositionedTile(
-            title: item['title']!,
-            image: item['image']!,
+          return GestureDetector(
+            onTap: ()=>Get.to(()=>SearchResultPage(query: item['title']!)),
+            child: RelativePositionedTile(
+              title: item['title']!,
+              image: item['image']!,
+            ),
           );
         },
       ),

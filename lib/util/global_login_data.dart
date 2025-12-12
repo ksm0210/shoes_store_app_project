@@ -15,7 +15,7 @@ class GlobalLoginData {
   // 기본 category data
   static List<ProductCategory> categories = [];
 
-  // 임시 오더 정보 
-  static List<Order> orders = [];
+  // 임시 쇼핑카트 정보
+  static List<Order> shopping_cart = [];
 
 }
