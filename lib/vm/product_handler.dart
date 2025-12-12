@@ -7,11 +7,12 @@ class ProductHandler {
 
   Future<List<Product>> selectQuery(int id) async {
     Database db = await Initialize.initDatabase();
+    // 최신제품
     final data = await db.rawQuery("""
       select products.*,productCategories.category_name,manufactures.manufacture_name from products 
       inner join manufactures on products.manufacture_id = manufactures.manufacture_id
       inner join productCategories on productCategories.category_id=products.category_id
-    
+      order by products.product_released_date desc
       """);
 
     return data.map((data)=>Product.fromMap(data)).toList();
@@ -29,7 +30,9 @@ class ProductHandler {
     return data.map((data)=>Product.fromMap(data)).toList();
   }
   
-  
+
+
+
   Future<int> insert(Product prod) async {
     Database db = await Initialize.initDatabase();
     return await db.rawInsert("""

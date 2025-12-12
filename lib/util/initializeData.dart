@@ -74,6 +74,7 @@ initializeData() async {
         product_name: '에어 조던', 
         product_color: 'green', 
         product_size: 270, 
+        gender: '남성',
         product_price: 150000,
         product_description: '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 
         product_quantity: 10, 
@@ -95,7 +96,7 @@ initializeData() async {
         product_price: 150000, 
         product_quantity: 15,
          product_description: '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 
-       
+        gender: '여성',
         mainImageUrl:'https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4',
         sub1ImageUrl:'',
         sub2ImageUrl:'',
@@ -113,6 +114,7 @@ initializeData() async {
         product_size: 275, 
         product_price: 150000, 
         product_quantity: 10,
+        gender: '남성',
          product_description: '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 
        
         mainImageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA5TAFbKthcnj0ocsMMjbiUmYNKoCdlQcOFVqwqiC4J4N4ARFiealFz7uZ-9h683p_PcG3Tla2CmnavgRpHIw_2qEbY5bC20QsVzEk0lKov_X2eI9cM5dX-whZYKdEPkMXqRCGLD-yrLdTR52MftHTJXR4bphU-5uiwWT-FQBDvIeMT5VhnfhhxCYy-JKG7gVnAP015l9uPUSv-3Uxn-_yxTouAUjZM1_uDZ6O_QoTXCDIdof7tYvoaYSG5jO_jWymPcOPUQhJtCrk',
@@ -129,6 +131,7 @@ initializeData() async {
         category_id : 1,
         product_name: '에어 맥스 270', 
         product_color: 'red', 
+        gender: '여성',
         product_size: 265, 
         product_price: 128000, 
         product_quantity: 5,

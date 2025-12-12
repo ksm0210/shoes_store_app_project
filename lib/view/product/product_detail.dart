@@ -9,20 +9,20 @@ import 'package:shoes_store_app_project/vm/review_handler.dart';
 // DetailView의 생성자 정보를 반영하여 DetailScreen을 수정합니다.
 class ProductDetail extends StatefulWidget {
   // main_screen에서 넘겨주는 데이터들
-  final String title;
-  final String subtitle;
-  final String price;
-  final String imageUrl;
-  final String description; // 이건 선택사항 (기본값 있음)
+  // final String title;
+  // final String subtitle;
+  // final String price;
+  // final String imageUrl;
+  // final String description; // 이건 선택사항 (기본값 있음)
 
-  const ProductDetail({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.price,
-    required this.imageUrl,
-    this.description = "이 제품은 뛰어난 쿠셔닝과 세련된 디자인을 자랑합니다. 일상 생활과 스포츠 활동 모두에 적합하며, 편안한 착화감을 제공합니다.",
-  });
+  // const ProductDetail({
+  //   super.key,
+  //   required this.title,
+  //   required this.subtitle,
+  //   required this.price,
+  //   required this.imageUrl,
+  //   this.description = "이 제품은 뛰어난 쿠셔닝과 세련된 디자인을 자랑합니다. 일상 생활과 스포츠 활동 모두에 적합하며, 편안한 착화감을 제공합니다.",
+  // });
 
   @override
   State<ProductDetail> createState() => _ProductDetailState();
@@ -30,6 +30,9 @@ class ProductDetail extends StatefulWidget {
 
 class _ProductDetailState extends State<ProductDetail> {
   // 상태 관리 변수들
+
+
+
   int _currentImageIndex = 0;
   int _selectedColorIndex = 0;
   bool _isLiked = false;
@@ -190,7 +193,7 @@ class _ProductDetailState extends State<ProductDetail> {
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
-        widget.title, // 넘겨받은 title 사용
+        product!= null ? product!.product_name: '...', // 넘겨받은 title 사용
         style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
       ),
       centerTitle: true,

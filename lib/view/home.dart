@@ -1,9 +1,14 @@
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/product.dart';
+import 'package:shoes_store_app_project/model/product_category.dart';
+import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/view/order/shopping_cart.dart';
 import 'package:shoes_store_app_project/view/product/product_detail.dart';
 import 'package:shoes_store_app_project/view/search/search_result.dart';
 import 'package:shoes_store_app_project/view/user/user_info.dart';
+import 'package:shoes_store_app_project/vm/product_handler.dart';
 
 
 
@@ -16,6 +21,27 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
+
+  ProductHandler productHandler = ProductHandler();
+  List<Product> productList = [];
+  List<ProductCategory> categories = [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+
+    productList = await productHandler.selectQuery(0);
+    
+    print('====== ${productList.length}');
+    setState(() {
+      
+    });
+  }
+
 
   void _onItemTapped(int index) {
     if (index == 3) {
@@ -122,10 +148,10 @@ class _HomeState extends State<Home> {
       context,
       MaterialPageRoute(
         builder: (context) => ProductDetail( // 클래스명을 DetailScreen으로 수정
-          title: product['title']!,
-          subtitle: product['subtitle']!,
-          imageUrl: product['image']!,
-          price: "₩139,000", // DetailScreen 더미 데이터에 맞춰 임의 가격 지정
+          // title: product['title']!,
+          // subtitle: product['subtitle']!,
+          // imageUrl: product['image']!,
+          // price: "₩139,000", // DetailScreen 더미 데이터에 맞춰 임의 가격 지정
           // description: 기본값 사용
         ),
       ),
@@ -167,7 +193,9 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
+      body: productList.length==0? 
+        const Center(child: CircularProgressIndicator())
+      : SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,9 +257,10 @@ class _HomeState extends State<Home> {
       height: 450,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        image: const DecorationImage(
+        image: DecorationImage(
           image: NetworkImage(
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuDHi22KsHGy4wL-HzW9V2Qkn9-63YqqrkRffjXiHpq4nuP46eaRhAJrRbkCQTShID2ZjvPBDcqYFgNvBMkEl0Yy0gmNapTPTtY_lTtCthFAUQb1I0nC0ax0XTWspGWB2C-B2ZIbCk_D0UyTT5LSGL9FaYpKUZtWw1kiUIdax1g9HeSS2rMxpuKfjysexwCzB34HLV7i7PwWTC1qOHKFegVJM410ROXXHIDW1zLnKNx0ECBq3RGRfzUGJfJi9Csg2LrBVlsiKDxMnR4"),
+              productList[0].mainImageUrl!
+          ),//"https://lh3.googleusercontent.com/aida-public/AB6AXuDHi22KsHGy4wL-HzW9V2Qkn9-63YqqrkRffjXiHpq4nuP46eaRhAJrRbkCQTShID2ZjvPBDcqYFgNvBMkEl0Yy0gmNapTPTtY_lTtCthFAUQb1I0nC0ax0XTWspGWB2C-B2ZIbCk_D0UyTT5LSGL9FaYpKUZtWw1kiUIdax1g9HeSS2rMxpuKfjysexwCzB34HLV7i7PwWTC1qOHKFegVJM410ROXXHIDW1zLnKNx0ECBq3RGRfzUGJfJi9Csg2LrBVlsiKDxMnR4"),
           fit: BoxFit.cover,
         ),
       ),
@@ -270,7 +299,7 @@ class _HomeState extends State<Home> {
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: ()=> Get.to(()=>ProductDetail(),arguments: productList[0].product_id),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
@@ -281,7 +310,8 @@ class _HomeState extends State<Home> {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child:
+                   const Text(
                     "쇼핑 하기",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
@@ -295,39 +325,47 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildNewArrivals() {
-    final products = [
-      {
-        "title": "에어 맥스 90",
-        "subtitle": "남성 신발",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4"
-      },
-      {
-        "title": "에어 포스 1",
-        "subtitle": "여성 신발",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuA5TAFbKthcnj0ocsMMjbiUmYNKoCdlQcOFVqwqiC4J4N4ARFiealFz7uZ-9h683p_PcG3Tla2CmnavgRpHIw_2qEbY5bC20QsVzEk0lKov_X2eI9cM5dX-whZYKdEPkMXqRCGLD-yrLdTR52MftHTJXR4bphU-5uiwWT-FQBDvIeMT5VhnfhhxCYy-JKG7gVnAP015l9uPUSv-3Uxn-_yxTouAUjZM1_uDZ6O_QoTXCDIdof7tYvoaYSG5jO_jWymPcOPUQhJtCrk"
-      },
-      {
-        "title": "에어 조던 1",
-        "subtitle": "남성 신발",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDpON7VqeimHWNLI8BpsZ9Y-hdvZG7u0bMyzKuJdc-peEtlDNEEFdDgJsYlG-0ff2exA6lqoBzSB6XSjwrgoLVsdx0626XQjp8N8rjDq5DDeVeH-1ycJKeHN3Nm1UMvhSJ-kImWboyzIZdbK4xX93L1xVQyr1dRmSC_7fHftIjE-Ia0sgQduae4idKGcvvQ4tsR0wdPGbWBz2TDMOvVI4AorfQXXH2XrStY8udjRoG7Ukvzv3Ifhf0jrvKhH9-r7gj7-UXzsIHI2_o"
-      },
-      {
-        "title": "에어 맥스 270",
-        "subtitle": "남성 신발",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAWT5XtZPPiASQ8v75AKCbnfIgfTjhgk5Dj_gZr9bzaJQKrKplCfMVmgOgJtbWv4j-r7MrvNRUHqIPXGKxCvdfeAcWnB1nLp_8rkPfnBewikUnse8MFk4Uo06qfh8-sq_Rvly7PPKRpL3vB5wu4dwzd_aVDZANNvo0slxuaHN9brDT6P0XM01CiHxmTgaU"
-      }
-    ];
+    final products = productList.map((data)=> {
+        "title": data.product_name,
+        "subtitle": data.gender != null? '${data.gender}신발': '신발',
+        "image": data.mainImageUrl
+        }).toList();
+
+    
+    
+    //  [
+    //   {
+    //     "title": "에어 맥스 90",
+    //     "subtitle": "남성 신발",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4"
+    //   },
+    //   {
+    //     "title": "에어 포스 1",
+    //     "subtitle": "여성 신발",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuA5TAFbKthcnj0ocsMMjbiUmYNKoCdlQcOFVqwqiC4J4N4ARFiealFz7uZ-9h683p_PcG3Tla2CmnavgRpHIw_2qEbY5bC20QsVzEk0lKov_X2eI9cM5dX-whZYKdEPkMXqRCGLD-yrLdTR52MftHTJXR4bphU-5uiwWT-FQBDvIeMT5VhnfhhxCYy-JKG7gVnAP015l9uPUSv-3Uxn-_yxTouAUjZM1_uDZ6O_QoTXCDIdof7tYvoaYSG5jO_jWymPcOPUQhJtCrk"
+    //   },
+    //   {
+    //     "title": "에어 조던 1",
+    //     "subtitle": "남성 신발",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDpON7VqeimHWNLI8BpsZ9Y-hdvZG7u0bMyzKuJdc-peEtlDNEEFdDgJsYlG-0ff2exA6lqoBzSB6XSjwrgoLVsdx0626XQjp8N8rjDq5DDeVeH-1ycJKeHN3Nm1UMvhSJ-kImWboyzIZdbK4xX93L1xVQyr1dRmSC_7fHftIjE-Ia0sgQduae4idKGcvvQ4tsR0wdPGbWBz2TDMOvVI4AorfQXXH2XrStY8udjRoG7Ukvzv3Ifhf0jrvKhH9-r7gj7-UXzsIHI2_o"
+    //   },
+    //   {
+    //     "title": "에어 맥스 270",
+    //     "subtitle": "남성 신발",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAWT5XtZPPiASQ8v75AKCbnfIgfTjhgk5Dj_gZr9bzaJQKrKplCfMVmgOgJtbWv4j-r7MrvNRUHqIPXGKxCvdfeAcWnB1nLp_8rkPfnBewikUnse8MFk4Uo06qfh8-sq_Rvly7PPKRpL3vB5wu4dwzd_aVDZANNvo0slxuaHN9brDT6P0XM01CiHxmTgaU"
+    //   }
+    // ];
 
     return SizedBox(
       height: 160, // Image(aspect square) + Text height
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: products.length,
+        itemCount: productList.length,
         separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final item = products[index];
+          final item = productList[index];
           return GestureDetector(
-            onTap: () => _navigateToDetail(item),
+            onTap: () =>Get.to(()=>ProductDetail(),arguments: item.product_id),//=> _navigateToDetail(item),
             child: SizedBox(
               width: 110, // Approx 1/3 of screen width
               child: Column(
@@ -340,7 +378,7 @@ class _HomeState extends State<Home> {
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.grey[100],
                         image: DecorationImage(
-                          image: NetworkImage(item['image']!),
+                          image: NetworkImage(item.mainImageUrl!),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -348,12 +386,12 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    item['title']!,
+                    item.product_name!,
                     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    item['subtitle']!,
+                    item.gender!=null? '${item.gender}신발': '신발',
                     style: const TextStyle(fontSize: 10, color: Colors.grey),
                   ),
                 ],
@@ -422,20 +460,26 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildAllProducts() {
-    final categories = [
-      {
-        "title": "라이프스타일",
+    final categories = GlobalLoginData.categories.map((data)=> {
+        "title": data.category_name,
         "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4"
-      },
-      {
-        "title": "러닝",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuA5TAFbKthcnj0ocsMMjbiUmYNKoCdlQcOFVqwqiC4J4N4ARFiealFz7uZ-9h683p_PcG3Tla2CmnavgRpHIw_2qEbY5bC20QsVzEk0lKov_X2eI9cM5dX-whZYKdEPkMXqRCGLD-yrLdTR52MftHTJXR4bphU-5uiwWT-FQBDvIeMT5VhnfhhxCYy-JKG7gVnAP015l9uPUSv-3Uxn-_yxTouAUjZM1_uDZ6O_QoTXCDIdof7tYvoaYSG5jO_jWymPcOPUQhJtCrk"
-      },
-      {
-        "title": "농구",
-        "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDpON7VqeimHWNLI8BpsZ9Y-hdvZG7u0bMyzKuJdc-peEtlDNEEFdDgJsYlG-0ff2exA6lqoBzSB6XSjwrgoLVsdx0626XQjp8N8rjDq5DDeVeH-1ycJKeHN3Nm1UMvhSJ-kImWboyzIZdbK4xX93L1xVQyr1dRmSC_7fHftIjE-Ia0sgQduae4idKGcvvQ4tsR0wdPGbWBz2TDMOvVI4AorfQXXH2XrStY8udjRoG7Ukvzv3Ifhf0jrvKhH9-r7gj7-UXzsIHI2_o"
-      }
-    ];
+      }).toList();
+    
+    
+    // [
+    //   {
+    //     "title": "라이프스타일",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4"
+    //   },
+    //   {
+    //     "title": "러닝",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuA5TAFbKthcnj0ocsMMjbiUmYNKoCdlQcOFVqwqiC4J4N4ARFiealFz7uZ-9h683p_PcG3Tla2CmnavgRpHIw_2qEbY5bC20QsVzEk0lKov_X2eI9cM5dX-whZYKdEPkMXqRCGLD-yrLdTR52MftHTJXR4bphU-5uiwWT-FQBDvIeMT5VhnfhhxCYy-JKG7gVnAP015l9uPUSv-3Uxn-_yxTouAUjZM1_uDZ6O_QoTXCDIdof7tYvoaYSG5jO_jWymPcOPUQhJtCrk"
+    //   },
+    //   {
+    //     "title": "농구",
+    //     "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDpON7VqeimHWNLI8BpsZ9Y-hdvZG7u0bMyzKuJdc-peEtlDNEEFdDgJsYlG-0ff2exA6lqoBzSB6XSjwrgoLVsdx0626XQjp8N8rjDq5DDeVeH-1ycJKeHN3Nm1UMvhSJ-kImWboyzIZdbK4xX93L1xVQyr1dRmSC_7fHftIjE-Ia0sgQduae4idKGcvvQ4tsR0wdPGbWBz2TDMOvVI4AorfQXXH2XrStY8udjRoG7Ukvzv3Ifhf0jrvKhH9-r7gj7-UXzsIHI2_o"
+    //   }
+    // ];
 
     return SizedBox(
       height: 130,
