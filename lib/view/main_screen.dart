@@ -4,44 +4,10 @@ import 'package:shoes_store_app_project/view/my_page.dart';
 import 'package:shoes_store_app_project/view/shopping_cart.dart';
 import 'package:shoes_store_app_project/view/search_result.dart'; 
 import 'package:shoes_store_app_project/view/detail_view.dart'; 
-import 'package:shoes_store_app_project/util/controllers.dart'; // AppController, CartController 사용
+import 'package:shoes_store_app_project/util/controllers.dart'; 
 
-// MainScreenState에서 사용할 AppController 인스턴스를 주입합니다.
-final AppController appController = Get.put(AppController()); 
-final CartController cartController = Get.find<CartController>(); // CartController도 Find합니다.
+// AppController는 initState에서 Get.find로 안전하게 초기화됩니다.
 
-
-void main() {
-  // main에서 GetMaterialApp 사용과 컨트롤러 주입을 가정합니다.
-  // Get.put(AppController());
-  // Get.put(CartController(), permanent: true);
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // GetX 스낵바를 사용하기 위해 GetMaterialApp 사용
-    return GetMaterialApp( 
-      debugShowCheckedModeBanner: false,
-      title: 'Stitch Design',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Noto Sans KR', 
-        useMaterial3: true,
-        // AppBar 배경색 및 아이콘 색상 기본 설정
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          iconTheme: IconThemeData(color: Colors.black),
-          elevation: 0,
-        ),
-      ),
-      home: const MainScreen(),
-    );
-  }
-}
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -51,31 +17,35 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  late final AppController appController;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
+  @override
+  void initState() {
+    super.initState();
+    appController = Get.find<AppController>();
+  }
+
 
   void _onItemTapped(int index) {
     if (index == 3) {
-      // 마이페이지 (인덱스 3)
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const MyPage()),
       );
     } else if (index == 4) {
-      // 장바구니 (인덱스 4)
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ShoppingCart()),
       );
     } else if (index == 1) { 
-      // 카테고리 (인덱스 1): Drawer 열기
       _scaffoldKey.currentState?.openDrawer();
     } else if (index == 2) {
-      // 검색 (인덱스 2): 검색 모달 열기
-      appController.changePage(index); 
+      // 🚨 수정: IndexedStack 인덱스 변경 없이 바로 모달 호출
       _showSearchBottomSheet();
     } 
     else {
-      // 홈 (인덱스 0)
+      // 홈 (0)
       appController.changePage(index);
     }
   }
@@ -111,16 +81,9 @@ class _MainScreenState extends State<MainScreen> {
           ),
         );
       },
-    ).whenComplete(() {
-      if (appController.currentIndex.value == 2) {
-        appController.changePage(0);
-      }
-    });
+    ); // 🚨 수정: .whenComplete 로직 제거
   }
   
-  // -----------------------------------------------------------
-  // 알림 팝업창 (Get.dialog 사용)
-  // -----------------------------------------------------------
   void _showNotificationDialog() {
     // 더미 알림 데이터
     final List<Map<String, dynamic>> notifications = [
@@ -155,11 +118,10 @@ class _MainScreenState extends State<MainScreen> {
                       subtitle: Text(notif['subtitle'] as String),
                       trailing: Text(notif['date'] as String, style: const TextStyle(fontSize: 11, color: Colors.grey)),
                       onTap: () {
-                        Get.back(); // 팝업 닫기
-                        // 상세 알림 페이지로 이동 로직 추가
+                        Get.back(); 
                       },
                     ),
-                    const Divider(height: 1, color: Color(0xFFEEEEEE), indent: 16, endIndent: 16),
+                    const Divider(height: 1, thickness: 0.5, color: Color(0xFFEEEEEE), indent: 16, endIndent: 16),
                   ],
                 )).toList(),
             ],
@@ -227,9 +189,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
   
-  // -----------------------------------------------------------
-  // 🚨 카테고리 Drawer 디자인 개선
-  // -----------------------------------------------------------
   Widget _buildDrawer(BuildContext context) {
     final List<String> shoeCategories = [
       '라이프스타일', '러닝화', '농구화', '트레이닝', '축구화', 
@@ -237,12 +196,10 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     return Drawer(
-      // 드로어 너비를 조금 줄여 콘텐츠에 집중
       width: MediaQuery.of(context).size.width * 0.75, 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 드로어 헤더 (AppBar 스타일과 유사하게)
           Padding(
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 16, 
@@ -267,7 +224,6 @@ class _MainScreenState extends State<MainScreen> {
           
           const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
           
-          // 카테고리 목록
           Expanded(
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -310,13 +266,11 @@ class _MainScreenState extends State<MainScreen> {
         titleSpacing: 0,
         centerTitle: true, 
         
-        // 카테고리 버튼 (Drawer 열기)
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.black),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         
-        // 로고 중앙 정렬
         title: SizedBox(
           width: 50,
           height: 20,
@@ -324,12 +278,12 @@ class _MainScreenState extends State<MainScreen> {
         ),
         
         actions: [
-          // 🚨 알림 아이콘 (팝업 기능 추가)
+          // 알림 아이콘
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.black),
-            onPressed: _showNotificationDialog, // 알림 팝업 함수 연결
+            onPressed: _showNotificationDialog, 
           ),
-          // 장바구니 아이콘 (배지 기능 추가)
+          // 장바구니 아이콘 + 배지
           Stack(
             children: [
               IconButton(
@@ -338,9 +292,11 @@ class _MainScreenState extends State<MainScreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ShoppingCart()));
                 },
               ),
-              // 🚨 장바구니 배지 추가
+              // 배지 로직
               Obx(() {
-                if (cartController.cartItems.isEmpty) return const SizedBox.shrink();
+                final CartController localCartController = Get.find<CartController>();
+                if (localCartController.cartItems.isEmpty) return const SizedBox.shrink();
+
                 return Positioned(
                   right: 8,
                   top: 8,
@@ -355,7 +311,7 @@ class _MainScreenState extends State<MainScreen> {
                       minHeight: 16,
                     ),
                     child: Text(
-                      cartController.cartItems.length.toString(),
+                      localCartController.cartItems.length.toString(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -375,8 +331,8 @@ class _MainScreenState extends State<MainScreen> {
         index: appController.currentIndex.value,
         children: [
           _buildHomeScreenContent(context), 
-          Container(), 
-          _buildSearchField(), 
+          Container(), // 인덱스 1: 카테고리 (Drawer)
+          Container(), // 🚨 수정: 인덱스 2를 빈 화면으로 유지 (검색은 모달로 뜹니다)
           const MyPage(), 
           const ShoppingCart(), 
         ],
@@ -409,7 +365,7 @@ class _MainScreenState extends State<MainScreen> {
   }
   
   // -----------------------------------------------------------
-  // 나머지 _buildXxx 메서드 (변경 없음)
+  // 나머지 _buildXxx 메서드 (동일)
   // -----------------------------------------------------------
   Widget _buildHomeScreenContent(BuildContext context) {
     return SingleChildScrollView(
