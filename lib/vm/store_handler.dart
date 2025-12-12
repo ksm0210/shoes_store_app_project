@@ -9,7 +9,7 @@ class StoreHandler {
 
   Future<List<Store>> selectQuery(int id) async {
     Database db = await Initialize.initDatabase();
-    final data = await db.rawQuery('select * from stores');
+    final data = await db.rawQuery('select distinct * from stores');
 
     return data.map((data)=>Store.fromMap(data)).toList();
   }

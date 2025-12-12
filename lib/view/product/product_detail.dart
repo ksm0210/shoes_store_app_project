@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_store_app_project/model/order.dart';
 import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/model/review.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
+import 'package:shoes_store_app_project/view/order/order_view.dart';
 import 'package:shoes_store_app_project/vm/product_handler.dart';
 import 'package:shoes_store_app_project/vm/review_handler.dart';
 
@@ -58,9 +60,9 @@ class _ProductDetailState extends State<ProductDetail> {
     // 넘겨받은 imageUrl을 첫 번째 이미지로 설정 (다른 색상 더미는 유지)
 
 
-    
-    // getData(product_id);
-    getData(1);
+
+    getData(product_id);
+
     // _productImages = [
     //   widget.imageUrl, // main_screen에서 넘겨받은 이미지
     //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/air-force-1-07-mens-shoes-jBrhBr.png", // 흰색 (대체)
@@ -104,11 +106,10 @@ class _ProductDetailState extends State<ProductDetail> {
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
         child: product==null? 
-         const CircularProgressIndicator()
+         Center(child: const CircularProgressIndicator())
         : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${GlobalLoginData.customer_id}'),
             // 1. 이미지 캐러셀
             _buildImageCarousel(),
 
@@ -128,7 +129,7 @@ class _ProductDetailState extends State<ProductDetail> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '남성 신발',//widget.subtitle, // 넘겨받은 subtitle 사용
+                    '${product!.gender} 신발',//widget.subtitle, // 넘겨받은 subtitle 사용
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
@@ -349,7 +350,7 @@ class _ProductDetailState extends State<ProductDetail> {
               child: SizedBox(
                 height: 56,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () => Get.to(()=>OrderView(),arguments: [Order(customer_id: GlobalLoginData.customer_id, product_id: product_id, product_name: product!.product_name, order_store_id: product!.store_id, order_quantity: 1, order_total_price: product!.product_price, order_status: '요청',product_mainImageUrl: product!.mainImageUrl, created_at: DateTime.now())]),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.grey.shade300),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
