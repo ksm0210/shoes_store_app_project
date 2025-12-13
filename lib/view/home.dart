@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/model/product_category.dart';
+import 'package:shoes_store_app_project/util/controllers.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/view/order/shopping_cart.dart';
 import 'package:shoes_store_app_project/view/product/product_detail.dart';
@@ -186,13 +187,56 @@ class _HomeState extends State<Home> {
                     setState(() {});
                   },
                 ),
-                IconButton(
-                  // 쇼핑카트
-                  icon: const Icon(
-                    Icons.shopping_bag_outlined,
-                    color: Colors.black,
-                  ),
-                  onPressed: () {},
+                // 장바구니 아이콘 + 배지
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.shopping_bag_outlined,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ShoppingCartView(),
+                          ),
+                        );
+                      },
+                    ),
+                    // 배지 로직
+                    Obx(() {
+                      final CartController localCartController =
+                          Get.find<CartController>();
+                      if (localCartController.cartItems.isEmpty)
+                        return const SizedBox.shrink();
+
+                      return Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            localCartController.cartItems.length.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ],
             ),

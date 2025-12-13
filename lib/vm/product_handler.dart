@@ -241,4 +241,30 @@ class ProductHandler {
 
     return map;
   }
+
+  // 선택 사이즈의 product_id 찾기
+  Future<int?> findVariantProductId({
+    required String productName,
+    required String productColor,
+    required int productSize,
+  }) async {
+    final db = await Initialize.initDatabase();
+    final rows = await db.rawQuery(
+      '''
+    SELECT product_id
+    FROM products
+    WHERE product_name = ?
+      AND product_color = ?
+      AND product_size = ?
+    LIMIT 1
+  ''',
+      [productName, productColor, productSize],
+    );
+
+    if (rows.isEmpty) return null;
+
+    final v = rows.first['product_id'];
+    if (v is int) return v;
+    return int.tryParse(v.toString());
+  }
 }

@@ -177,12 +177,18 @@ class Initialize {
 
         // shoppingcarts table
         await db.execute("""      
-        CREATE TABLE ShoppingCarts (
-          cart_seq_id INTEGER PRIMARY KEY AUTOINCREMENT,
-          customer_id INTEGER NOT NULL,
-          product_id INTEGER NOT NULL,
-          created_at TEXT NOT NULL
-        )
+        CREATE TABLE IF NOT EXISTS cart_items (
+        cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        price INTEGER NOT NULL,
+        image TEXT,
+        size TEXT NOT NULL,
+        qty INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
         """);
 
         // wishes table
@@ -202,6 +208,12 @@ class Initialize {
         await db.execute("""
         CREATE UNIQUE INDEX IF NOT EXISTS ux_products_variant
         ON products(store_id, product_name, product_color, product_size);
+        """);
+
+        // 같은 고객이 같은 상품/사이즈를 또 담으면 수량만 증가 시키기 위한 유니크 키
+        await db.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_cart_unique
+        ON cart_items(customer_id, product_id, size);
         """);
       },
       version: 1,

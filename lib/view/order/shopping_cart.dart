@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // 경로를 그대로 사용합니다.
 import 'package:shoes_store_app_project/util/controllers.dart';
+import 'package:shoes_store_app_project/vm/shopcart_handler.dart';
 
 class ShoppingCartView extends StatelessWidget {
   const ShoppingCartView({super.key});
