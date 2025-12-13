@@ -66,7 +66,10 @@ class ProductHandler {
             sub2ImageUrl,
             product_released_date,
             created_at
-   ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) 
+   ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+   on conflict(store_id, product_name, product_color, product_size)
+   do update set
+     product_quantity = product_quantity + excluded.product_quantity
       """,
       [
         prod.store_id,
@@ -188,5 +191,54 @@ class ProductHandler {
       ''');
 
     return data.map((data) => Product.fromMap(data)).toList();
+  }
+
+  // 각 재고수량 Query
+  Future<Map<int, int>> productQuantityQuery(
+    String product_name,
+    String product_color,
+  ) async {
+    Database db = await Initialize.initDatabase();
+    final data = await db.rawQuery(
+      '''
+      select p.product_size , coalesce(sum(p.product_quantity), 0) as psum
+      from products p
+      where p.product_name = ? and p.product_color = ?
+      group by p.product_size
+      ''',
+      [product_name, product_color],
+    );
+
+    final map = <int, int>{};
+
+    for (final r in data) {
+      final sizeRaw = r['product_size'];
+      final qtyRaw = r['psum'];
+
+      // size: null이면 스킵
+      if (sizeRaw == null) continue;
+
+      // size 변환
+      final int size = sizeRaw is int
+          ? sizeRaw
+          : sizeRaw is num
+          ? sizeRaw.toInt()
+          : int.tryParse(sizeRaw.toString()) ?? -1;
+
+      if (size == -1) continue;
+
+      // qty 변환 (SUM이라 num일 수 있음)
+      final int qty = qtyRaw == null
+          ? 0
+          : qtyRaw is int
+          ? qtyRaw
+          : qtyRaw is num
+          ? qtyRaw.toInt()
+          : int.tryParse(qtyRaw.toString()) ?? 0;
+
+      map[size] = qty;
+    }
+
+    return map;
   }
 }

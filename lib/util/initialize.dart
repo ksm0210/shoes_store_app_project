@@ -2,7 +2,6 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class Initialize {
-
   static Future<Database> initDatabase() async {
     String path = await getDatabasesPath();
     return openDatabase(
@@ -195,6 +194,14 @@ class Initialize {
           created_at TEXT NOT NULL,
           UNIQUE(customer_id, product_id)
         )
+        """);
+
+        // 재고나뉘는게 없어짐
+        // ex) 지금 랜덤으로 사이즈 for문으로 데이터를 넣고있는데
+        // 240이 두개 들어갈수있음 그러면 product_id는 다른데 재고는 나뉘는상황
+        await db.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_products_variant
+        ON products(store_id, product_name, product_color, product_size);
         """);
       },
       version: 1,

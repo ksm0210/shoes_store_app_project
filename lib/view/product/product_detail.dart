@@ -3,8 +3,11 @@ import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/order.dart';
 import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/model/review.dart';
+import 'package:shoes_store_app_project/model/shopping_cart.dart';
+import 'package:shoes_store_app_project/util/controllers.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/view/order/order_view.dart';
+import 'package:shoes_store_app_project/view/order/shopping_cart.dart';
 import 'package:shoes_store_app_project/vm/product_handler.dart';
 import 'package:shoes_store_app_project/vm/review_handler.dart';
 
@@ -31,22 +34,36 @@ class ProductDetail extends StatefulWidget {
 }
 
 class _ProductDetailState extends State<ProductDetail> {
+  // GetX: CartController 인스턴스화 및 주입
+  final CartController cartController = Get.find<CartController>();
+  late final PageController _pageController;
   // 상태 관리 변수들
-
-
-
   int _currentImageIndex = 0;
   int _selectedColorIndex = 0;
   bool _isLiked = false;
+
+  // A1: 선택 가능한 사이즈 목록 (220부터 290까지 5단위)
+  final List<String> _availableSizes = [
+    for (int size = 220; size <= 300; size += 5) size.toString(),
+  ];
+  // A1: 현재 선택된 사이즈
+  String? _selectedSize;
+
+  // Property
+  late List<Product> list; // 상품1개정보
+  late int sizeStockCheck; // 재고수량 check
+  late Map<int, int> sizeStock; // 재고수량
   late Product? product = null;
   ProductHandler productHandler = ProductHandler();
   ReviewHandler reviewHandler = ReviewHandler();
   int product_id = Get.arguments ?? 0;
 
-  List<Review> reviewList =  [];
-  Map<String,dynamic> rateReport = {'totalCount':0,'rateTotalPoint':0,'rates':[]};
-  
-
+  List<Review> reviewList = [];
+  Map<String, dynamic> rateReport = {
+    'totalCount': 0,
+    'rateTotalPoint': 0,
+    'rates': [],
+  };
 
   // double reviewAvg = 0;
   // 더미 데이터: 이미지 리스트 (넘겨받은 imageUrl을 첫 번째 이미지로 사용하도록 변경)
@@ -57,38 +74,32 @@ class _ProductDetailState extends State<ProductDetail> {
   @override
   void initState() {
     super.initState();
+    sizeStockCheck = 0;
+    sizeStock = {};
     // 넘겨받은 imageUrl을 첫 번째 이미지로 설정 (다른 색상 더미는 유지)
-
-
-
     getData(product_id);
-
-    // _productImages = [
-    //   widget.imageUrl, // main_screen에서 넘겨받은 이미지
-    //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/b1bcbca4-e853-4df7-b329-5be3c61ee057/air-force-1-07-mens-shoes-jBrhBr.png", // 흰색 (대체)
-    //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/fc4622c4-2769-4665-aa6e-a2c06d316662/air-force-1-07-mens-shoes-jBrhBr.png", // 검정 (대체)
-    //   "https://static.nike.com/a/images/t_PDP_1728_v1/f_auto,q_auto:eco/aa503541-c9d3-455b-9285-a77d70428d02/air-force-1-07-mens-shoes-jBrhBr.png", // 된장 (대체)
-    // ];
   }
 
   getData(int id) async {
-    List<Product> list =  await productHandler.selectQueryById(id);
-    if(list.length>0){
+    list = await productHandler.selectQueryById(id);
+    sizeStock = await productHandler.productQuantityQuery(
+      list[0].product_name,
+      list[0].product_color,
+    );
+    if (list.length > 0) {
       product = list[0];
       _productImages.add(list[0].mainImageUrl!);
-      if(list[0].sub1ImageUrl != null && list[0].sub1ImageUrl!=''){
-         _productImages.add(list[0].sub1ImageUrl!);
+      if (list[0].sub1ImageUrl != null && list[0].sub1ImageUrl != '') {
+        _productImages.add(list[0].sub1ImageUrl!);
       }
-        if(list[0].sub2ImageUrl != null && list[0].sub2ImageUrl!=''){
-         _productImages.add(list[0].sub2ImageUrl!);
+      if (list[0].sub2ImageUrl != null && list[0].sub2ImageUrl != '') {
+        _productImages.add(list[0].sub2ImageUrl!);
       }
       reviewList = await reviewHandler.selectQuery(id);
-      
 
-      final queryResult  = await reviewHandler.selectQueryForReport(id);
+      final queryResult = await reviewHandler.selectQueryForReport(id);
 
-
-      for(final d in queryResult){
+      for (final d in queryResult) {
         rateReport['rateTotalPoint'] += d['review_rating'] * d['count'] as int;
         rateReport["totalCount"] += d['count'] as int;
         rateReport['rates'].add(d);
@@ -96,7 +107,12 @@ class _ProductDetailState extends State<ProductDetail> {
 
       setState(() {});
     }
-  
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,80 +121,115 @@ class _ProductDetailState extends State<ProductDetail> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        child: product==null? 
-         Center(child: const CircularProgressIndicator())
-        : Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. 이미지 캐러셀
-            _buildImageCarousel(),
-
-            // 2. 색상 선택 썸네일
-            _buildColorSelector(),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
+        child: product == null
+            ? Center(child: const CircularProgressIndicator())
+            : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 3. 상품 정보 (타이틀, 가격)
-                  const SizedBox(height: 20),
-                  Text(
-                    product!.product_name, //widget.title, // 넘겨받은 title 사용
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                  // 1. 이미지 캐러셀
+                  _buildImageCarousel(),
+
+                  // 2. 색상 선택 썸네일
+                  _buildColorSelector(),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 3. 상품 정보 (타이틀, 가격)
+                        const SizedBox(height: 20),
+                        Text(
+                          product!
+                              .product_name, //widget.title, // 넘겨받은 title 사용
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${product!.gender} 신발', //widget.subtitle, // 넘겨받은 subtitle 사용
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          product!.product_price
+                              .toString(), //widget.price, // 넘겨받은 price 사용
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+
+                        // 4. 사이즈 선택 버튼
+                        const SizedBox(height: 30),
+                        _buildSizeSelector(),
+
+                        // 5. 메인 액션 버튼들 (장바구니, 구매, 위시)
+                        const SizedBox(height: 20),
+                        _buildActionButtons(),
+
+                        // 6. 안내 박스
+                        const SizedBox(height: 30),
+                        _buildInfoBox(),
+
+                        // 제품 설명 추가 (description 활용)
+                        const SizedBox(height: 20),
+                        Text(
+                          "제품 설명",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          product!
+                              .product_description!, //widget.description, // 넘겨받은 description 사용
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                            height: 1.4,
+                          ),
+                        ),
+                        const Divider(
+                          height: 60,
+                          thickness: 1,
+                          color: Color(0xFFEEEEEE),
+                        ),
+
+                        // 7. 함께 본 상품
+                        const Text(
+                          "함께 본 상품",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildRecommendations(),
+
+                        const Divider(
+                          height: 60,
+                          thickness: 1,
+                          color: Color(0xFFEEEEEE),
+                        ),
+
+                        // 8. 리뷰 섹션
+                        _buildReviewSection(),
+
+                        const SizedBox(height: 40),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${product!.gender} 신발',//widget.subtitle, // 넘겨받은 subtitle 사용
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    product!.product_price.toString(), //widget.price, // 넘겨받은 price 사용
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
-                  ),
-
-                  // 4. 사이즈 선택 버튼
-                  const SizedBox(height: 30),
-                  _buildSizeSelector(),
-
-                  // 5. 메인 액션 버튼들 (장바구니, 구매, 위시)
-                  const SizedBox(height: 20),
-                  _buildActionButtons(),
-
-                  // 6. 안내 박스
-                  const SizedBox(height: 30),
-                  _buildInfoBox(),
-                  
-                  // 제품 설명 추가 (description 활용)
-                  const SizedBox(height: 20),
-                  Text(
-                    "제품 설명",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    product!.product_description!,//widget.description, // 넘겨받은 description 사용
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.4),
-                  ),
-                  const Divider(height: 60, thickness: 1, color: Color(0xFFEEEEEE)),
-
-                  // 7. 함께 본 상품
-                  const Text("함께 본 상품", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  _buildRecommendations(),
-
-                  const Divider(height: 60, thickness: 1, color: Color(0xFFEEEEEE)),
-
-                  // 8. 리뷰 섹션
-                  _buildReviewSection(),
-
-                  const SizedBox(height: 40),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
       bottomNavigationBar: _buildBottomNavBar(),
     );
@@ -194,8 +245,12 @@ class _ProductDetailState extends State<ProductDetail> {
         onPressed: () => Navigator.pop(context),
       ),
       title: Text(
-        product!= null ? product!.product_name: '...', // 넘겨받은 title 사용
-        style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+        product != null ? product!.product_name : '...', // 넘겨받은 title 사용
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       centerTitle: true,
       actions: [
@@ -251,12 +306,14 @@ class _ProductDetailState extends State<ProductDetail> {
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentImageIndex == index ? Colors.black : Colors.grey.withOpacity(0.5),
+                  color: _currentImageIndex == index
+                      ? Colors.black
+                      : Colors.grey.withOpacity(0.5),
                 ),
               );
             }),
           ),
-        )
+        ),
       ],
     );
   }
@@ -283,7 +340,9 @@ class _ProductDetailState extends State<ProductDetail> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: _selectedColorIndex == index ? Colors.black : Colors.transparent,
+                  color: _selectedColorIndex == index
+                      ? Colors.black
+                      : Colors.transparent,
                   width: 2,
                 ),
                 image: DecorationImage(
@@ -298,26 +357,72 @@ class _ProductDetailState extends State<ProductDetail> {
     );
   }
 
-  // 사이즈 선택 버튼 (드롭다운 스타일)
+  // 사이즈 선택 버튼 (A1: 가로 스크롤 선택 버튼)
   Widget _buildSizeSelector() {
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(30),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: const [
-          Text(
-            "250 사이즈",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+    int selectedQty() {
+      // size check
+      if (_selectedSize == null) {
+        return 0;
+      }
+      final s = int.tryParse(_selectedSize!) ?? 0;
+      sizeStockCheck = sizeStock[s] ?? 0;
+      return sizeStock[s] ?? 0; // 없는 사이즈면 0
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12.0),
+          child: Text(
+            _selectedSize == null
+                ? "사이즈를 선택해주세요"
+                : "선택된 사이즈: ${_selectedSize!} | 재고: ${selectedQty()}",
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          Icon(Icons.keyboard_arrow_down, color: Colors.black),
-        ],
-      ),
+        ),
+        SizedBox(
+          height: 50,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _availableSizes.map((size) {
+                final isSelected = _selectedSize == size;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedSize = isSelected ? null : size;
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.black : Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(
+                        color: isSelected ? Colors.black : Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Text(
+                      size,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -331,17 +436,53 @@ class _ProductDetailState extends State<ProductDetail> {
           height: 56,
           child: ElevatedButton(
             onPressed: () {
-              GlobalLoginData.shopping_cart.add(Order(customer_id: GlobalLoginData.customer_id, product_id: product_id, product_name: product!.product_name, order_store_id: product!.store_id, order_quantity: 1, order_total_price: product!.product_price, order_status: '요청',product_mainImageUrl: product!.mainImageUrl, created_at: DateTime.now()));
-              Get.back();
+              if (sizeStockCheck == 0) {
+                Get.snackbar(
+                  "경고",
+                  "품절된 사이즈 또는 사이즈를 선택안했습니다",
+                  snackPosition:
+                      SnackPosition.TOP, // snackbar 위치이동(TOP, BOTTOM)
+                  duration: Duration(seconds: 2),
+                  backgroundColor: Colors.red,
+                  colorText: Colors.black, // snackbar는 bold가 기본이다.
+                );
+              } else {
+                cartController.addToCart(
+                  product!.product_name,
+                  product!.product_price,
+                  product!.mainImageUrl ?? '',
+                  _selectedSize!,
+                );
+                // GlobalLoginData.shopping_cart.add(
+                //   Order(
+                //     customer_id: GlobalLoginData.customer_id,
+                //     product_id: value[0],
+                //     product_name: product!.product_name,
+                //     order_store_id: product!.store_id,
+                //     order_quantity: 1,
+                //     order_total_price: product!.product_price,
+                //     order_status: '요청',
+                //     product_mainImageUrl: product!.mainImageUrl,
+                //     created_at: DateTime.now(),
+                //   ),
+                // );
+                Get.to(ShoppingCartView());
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
               elevation: 0,
             ),
             child: const Text(
               "장바구니",
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -353,14 +494,35 @@ class _ProductDetailState extends State<ProductDetail> {
               child: SizedBox(
                 height: 56,
                 child: OutlinedButton(
-                  onPressed: () => Get.to(()=>OrderView(),arguments: [Order(customer_id: GlobalLoginData.customer_id, product_id: product_id, product_name: product!.product_name, order_store_id: product!.store_id, order_quantity: 1, order_total_price: product!.product_price, order_status: '요청',product_mainImageUrl: product!.mainImageUrl, created_at: DateTime.now())]),
+                  onPressed: () => Get.to(
+                    () => OrderView(),
+                    arguments: [
+                      Order(
+                        customer_id: GlobalLoginData.customer_id,
+                        product_id: product_id,
+                        product_name: product!.product_name,
+                        order_store_id: product!.store_id,
+                        order_quantity: 1,
+                        order_total_price: product!.product_price,
+                        order_status: '요청',
+                        product_mainImageUrl: product!.mainImageUrl,
+                        created_at: DateTime.now(),
+                      ),
+                    ],
+                  ),
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.grey.shade300),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
                   child: const Text(
                     "구매하기",
-                    style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -378,7 +540,9 @@ class _ProductDetailState extends State<ProductDetail> {
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
                   side: BorderSide(color: Colors.grey.shade300),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), // 원형에 가깝게
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ), // 원형에 가깝게
                 ),
                 child: Icon(
                   _isLiked ? Icons.favorite : Icons.favorite_border,
@@ -387,7 +551,7 @@ class _ProductDetailState extends State<ProductDetail> {
               ),
             ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -411,12 +575,21 @@ class _ProductDetailState extends State<ProductDetail> {
           const SizedBox(height: 8),
           Text(
             "제품 수령일로부터 14일 동안 제공되는 무료 반품 서비스를 만나보세요.",
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.4),
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade600,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 8),
           const Text(
             "자세히 보기",
-            style: TextStyle(fontSize: 13, color: Colors.black, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
           ),
         ],
       ),
@@ -426,9 +599,24 @@ class _ProductDetailState extends State<ProductDetail> {
   // 추천 상품 가로 스크롤
   Widget _buildRecommendations() {
     final List<Map<String, String>> recItems = [
-      {"name": "리액트 인피니티 런", "price": "₩149,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuDDt5iFoapJl0uzAcARC3gJPbzvQs0B0DGYyikn9yhKPgDeNRWgFMpXnUr543Jf4vgND33BjX-omWHAi_KpAfShPPreEqkR-yCUnKJky7U2aAQmce0EwmhHCpdCcoe97sMNXf47C-paUuhwWsWrvESOpXxkCknBejgTx2jGR5dPFZV9By4ISUZVn3ztQtLeovreJkxKQgA-_ejVKAy8CBbnG6yRp_dqSedQE7Ye-Mjk7jWUv2utjph7EKzhqKXkuJRpZia9Qa2XD1w"},
-      {"name": "에어 조던 1", "price": "₩179,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuAWT5XtZPPiASQ8v75AKCbnfIgfTjhgk5Dj_gZr9bzaJQKrKplCfMVmgOgJtbWv4j-r7MrvNRUHqIPXGKxCvdfeAcW-08p1c3rOzAnacZFQ6f9b12Tv2f6p2rVGF3zee4uGNrau6nuOEuMEdeqMnPdhDFXGGkJu5qZhCiV4v2WnB1nLp_8rkPfnBewikUnse8MFk4Uo06qfh8-sq_Rvly7PPKRpL3vB5wu4dwzd_aVDZANNvo0slxuaHN9brDT6P0XM01CiHxmTgaU"},
-      {"name": "블레이저 미드", "price": "₩119,000", "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm8qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A"},
+      {
+        "name": "리액트 인피니티 런",
+        "price": "₩149,000",
+        "img":
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuDDt5iFoapJl0uzAcARC3gJPbzvQs0B0DGYyikn9yhKPgDeNRWgFMpXnUr543Jf4vgND33BjX-omWHAi_KpAfShPPreEqkR-yCUnKJky7U2aAQmce0EwmhHCpdCcoe97sMNXf47C-paUuhwWsWrvESOpXxkCknBejgTx2jGR5dPFZV9By4ISUZVn3ztQtLeovreJkxKQgA-_ejVKAy8CBbnG6yRp_dqSedQE7Ye-Mjk7jWUv2utjph7EKzhqKXkuJRpZia9Qa2XD1w",
+      },
+      {
+        "name": "에어 조던 1",
+        "price": "₩179,000",
+        "img":
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuAWT5XtZPPiASQ8v75AKCbnfIgfTjhgk5Dj_gZr9bzaJQKrKplCfMVmgOgJtbWv4j-r7MrvNRUHqIPXGKxCvdfeAcW-08p1c3rOzAnacZFQ6f9b12Tv2f6p2rVGF3zee4uGNrau6nuOEuMEdeqMnPdhDFXGGkJu5qZhCiV4v2WnB1nLp_8rkPfnBewikUnse8MFk4Uo06qfh8-sq_Rvly7PPKRpL3vB5wu4dwzd_aVDZANNvo0slxuaHN9brDT6P0XM01CiHxmTgaU",
+      },
+      {
+        "name": "블레이저 미드",
+        "price": "₩119,000",
+        "img":
+            "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm8qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A",
+      },
     ];
 
     return SingleChildScrollView(
@@ -456,7 +644,10 @@ class _ProductDetailState extends State<ProductDetail> {
                   item['name']!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
                 ),
                 Text(
                   item['price']!,
@@ -479,43 +670,67 @@ class _ProductDetailState extends State<ProductDetail> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(( rateReport['rateTotalPoint']/rateReport['totalCount']).toString(), style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, height: 1.0)),
+            Text(
+              (rateReport['rateTotalPoint'] / rateReport['totalCount'])
+                  .toString(),
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+                height: 1.0,
+              ),
+            ),
             const SizedBox(width: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                   children: List.generate(5, (index) {
-              return Icon(
-                index < (rateReport['rateTotalPoint']/rateReport['totalCount']) ? Icons.star : Icons.star_border,
-                size: 16,
-                color: Colors.black,
-              );
-            }),
+                  children: List.generate(5, (index) {
+                    return Icon(
+                      index <
+                              (rateReport['rateTotalPoint'] /
+                                  rateReport['totalCount'])
+                          ? Icons.star
+                          : Icons.star_border,
+                      size: 16,
+                      color: Colors.black,
+                    );
+                  }),
                   //List.generate(5, (index) => const Icon(Icons.star, size: 18, color: Colors.black)),
                 ),
                 const SizedBox(height: 4),
-                Text("${rateReport['totalCount']} reviews", style: TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  "${rateReport['totalCount']} reviews",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
               ],
             ),
           ],
         ),
         const SizedBox(height: 20),
         // 평점 그래프 (간소화)
-        Column(children: List.generate(
-          rateReport['rates'].length,(index)=> _buildRatingBar(rateReport['rates'][index]['review_rating'], 0.5)
-         )),
+        Column(
+          children: List.generate(
+            rateReport['rates'].length,
+            (index) => _buildRatingBar(
+              rateReport['rates'][index]['review_rating'],
+              0.5,
+            ),
+          ),
+        ),
+
         // _buildRatingBar(5, 0.5),
         // _buildRatingBar(4, 0.3),
         // _buildRatingBar(3, 0.1),
         // _buildRatingBar(2, 0.05),
         // _buildRatingBar(1, 0.05),
-
         const SizedBox(height: 30),
-        Text("리뷰 (${rateReport['totalCount']})", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          "리뷰 (${rateReport['totalCount']})",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 16),
+
         // 개별 리뷰 아이템
-        
         Column(children: _buildReview()),
         // _buildReviewItem("지우", "2023년 10월 26일", 5, "정말 편하고 디자인도 예뻐요! 매일 신고 다닙니다."),
         // _buildReviewItem("민준", "2023년 10월 20일", 4, "사이즈가 조금 크게 나온 것 같아요. 그래도 만족합니다."),
@@ -528,7 +743,13 @@ class _ProductDetailState extends State<ProductDetail> {
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
         children: [
-          SizedBox(width: 12, child: Text("$star", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+          SizedBox(
+            width: 12,
+            child: Text(
+              "$star",
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: LinearProgressIndicator(
@@ -540,65 +761,98 @@ class _ProductDetailState extends State<ProductDetail> {
             ),
           ),
           const SizedBox(width: 12),
-          SizedBox(width: 30, child: Text("${(pct * 100).toInt()}%", style: const TextStyle(fontSize: 12, color: Colors.grey))),
+          SizedBox(
+            width: 30,
+            child: Text(
+              "${(pct * 100).toInt()}%",
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ),
         ],
       ),
     );
   }
 
   List<Widget> _buildReview() {
-
-    
-    return reviewList.map((data)=>Padding(
-      padding: const EdgeInsets.only(bottom: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                radius: 16,
-                backgroundColor: Color(0xFFEEEEEE),
-                child: Icon(Icons.person, color: Colors.grey, size: 20),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(data.customer_name!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text(data.created_at.toString(), style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              ),
-            ],
+    return reviewList
+        .map(
+          (data) => Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Color(0xFFEEEEEE),
+                      child: Icon(Icons.person, color: Colors.grey, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data.customer_name!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          data.created_at.toString(),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: List.generate(5, (index) {
+                    return Icon(
+                      index < data.review_rating
+                          ? Icons.star
+                          : Icons.star_border,
+                      size: 16,
+                      color: Colors.black,
+                    );
+                  }),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  data.review_content!,
+                  style: const TextStyle(fontSize: 14, height: 1.4),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.thumb_up_alt_outlined,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${(data.review_rating * 2) + 3}",
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ), // 더미 숫자
+                    const SizedBox(width: 16),
+                    const Icon(
+                      Icons.thumb_down_alt_outlined,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: List.generate(5, (index) {
-              return Icon(
-                index < data.review_rating ? Icons.star : Icons.star_border,
-                size: 16,
-                color: Colors.black,
-              );
-            }),
-          ),
-          const SizedBox(height: 8),
-          Text(data.review_content!, style: const TextStyle(fontSize: 14, height: 1.4)),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey),
-              const SizedBox(width: 4),
-              Text("${(data.review_rating  * 2) + 3}", style: const TextStyle(fontSize: 12, color: Colors.grey)), // 더미 숫자
-              const SizedBox(width: 16),
-              const Icon(Icons.thumb_down_alt_outlined, size: 16, color: Colors.grey),
-            ],
-          )
-        ],
-      ),
-    )
-    ).toList();
-
-
+        )
+        .toList();
 
     // return [Padding(
     //   padding: const EdgeInsets.only(bottom: 24.0),
@@ -666,8 +920,17 @@ class _ProductDetailState extends State<ProductDetail> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text(date, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    date,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
                 ],
               ),
             ],
@@ -687,13 +950,24 @@ class _ProductDetailState extends State<ProductDetail> {
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey),
+              const Icon(
+                Icons.thumb_up_alt_outlined,
+                size: 16,
+                color: Colors.grey,
+              ),
               const SizedBox(width: 4),
-              Text("${(stars * 2) + 3}", style: const TextStyle(fontSize: 12, color: Colors.grey)), // 더미 숫자
+              Text(
+                "${(stars * 2) + 3}",
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ), // 더미 숫자
               const SizedBox(width: 16),
-              const Icon(Icons.thumb_down_alt_outlined, size: 16, color: Colors.grey),
+              const Icon(
+                Icons.thumb_down_alt_outlined,
+                size: 16,
+                color: Colors.grey,
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
