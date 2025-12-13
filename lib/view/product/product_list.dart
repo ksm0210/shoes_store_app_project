@@ -11,17 +11,6 @@ class ProductList extends StatefulWidget {
 
 class _ProductListState extends State<ProductList> {
   final TextEditingController searchController = TextEditingController();
-  
-  // 임시 추천 검색어 (나중에 DB/서버로 교체)
-  final List<String> suggestions = [
-    "조던",
-    "조던 1 로우",
-    "조던1",
-    "조던 로우",
-    "에어 조던 1 브루클린 로우",
-    "조던 브루클린",
-    "조던4",
-  ];
 
   @override
   void initState() {
@@ -108,91 +97,8 @@ class _ProductListState extends State<ProductList> {
                 ],
               ),
             ),
-
-            const SizedBox(height: 24),
-
-            // 추천 검색어 타이틀
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "추천 검색어",
-                  style: TextStyle(
-                    color: greyText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            // 추천 검색어 리스트
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                itemCount: suggestions.length,
-                itemBuilder: (context, index) {
-                  final word = suggestions[index];
-                  return InkWell(
-                    onTap: () {
-                      // 추천어 누르면 검색바에 채우고(또는 바로 검색)
-                      searchController.text = word;
-                      searchController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: searchController.text.length),
-                      );
-                      setState(() {});
-
-                      final q = word.trim();
-                      if (q.isEmpty) return;
-
-                      Get.to(() => SearchResultPage(query: q));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        word,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
           ],
         ),
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        onTap: (i) {
-          // TODO: 네비 이동 연결
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "홈"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "구매하기"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border),
-            label: "위시리스트",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag_outlined),
-            label: "장바구니",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: "프로필",
-          ),
-        ],
       ),
     );
   }

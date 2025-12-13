@@ -23,7 +23,7 @@ class SearchResultPage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Get.back();
           },
         ),
       ),
@@ -67,11 +67,10 @@ class SearchResultPage extends StatelessWidget {
               final item = results[index];
 
               final String name = (item.product_name ?? '').toString();
-              final int price =
-                  int.tryParse(item.product_price.toString() ?? '0') ?? 0;
+              final int price = item.product_price ?? 0;
 
               // 이미지 컬럼이 없거나 null일 수 있으니 방어
-              final String? imageUrl = item.mainImageUrl.toString();
+              final String? imageUrl = item.mainImageUrl;
 
               final priceFormatted = price.toString().replaceAllMapped(
                 RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -88,8 +87,11 @@ class SearchResultPage extends StatelessWidget {
                         color: Colors.grey[100],
                         child: (imageUrl != null && imageUrl.isNotEmpty)
                             ? GestureDetector(
-                              onTap: ()=>Get.to(()=>ProductDetail(),arguments: results[index].product_id ),
-                              child: Image.network(
+                                onTap: () => Get.to(
+                                  () => ProductDetail(),
+                                  arguments: results[index].product_id,
+                                ),
+                                child: Image.network(
                                   imageUrl,
                                   fit: BoxFit.cover,
                                   width: double.infinity,
@@ -100,7 +102,7 @@ class SearchResultPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                            )
+                              )
                             : const Center(
                                 child: Icon(Icons.image, color: Colors.grey),
                               ),

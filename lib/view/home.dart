@@ -20,10 +20,10 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
 
   ProductHandler productHandler = ProductHandler();
-  List<Product> productList = [];
+  List<Product> productList = []; // 전체상품
   List<Product> newProductList = []; // 최신상품
   List<Product> popularProductList = []; // 인기상품
-  List<ProductCategory> categories = []; // 전체제품
+  List<ProductCategory> categories = [];
   @override
   void initState() {
     // TODO: implement initState
@@ -179,10 +179,15 @@ class _HomeState extends State<Home> {
             Row(
               children: [
                 IconButton(
+                  // 검색부분
                   icon: const Icon(Icons.search, color: Colors.black),
-                  onPressed: () {},
+                  onPressed: () {
+                    _showSearchBottomSheet();
+                    setState(() {});
+                  },
                 ),
                 IconButton(
+                  // 쇼핑카트
                   icon: const Icon(
                     Icons.shopping_bag_outlined,
                     color: Colors.black,
@@ -194,7 +199,7 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: productList.length == 0
+      body: newProductList.length == 0
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -266,7 +271,7 @@ class _HomeState extends State<Home> {
         borderRadius: BorderRadius.circular(12),
         image: DecorationImage(
           image: NetworkImage(
-            productList[0].mainImageUrl!,
+            newProductList[0].mainImageUrl!,
           ), // 여기가 최신 스니커즈 출시 Image
           fit: BoxFit.cover,
         ),
@@ -308,7 +313,7 @@ class _HomeState extends State<Home> {
                 ElevatedButton(
                   onPressed: () => Get.to(
                     () => ProductDetail(),
-                    arguments: productList[0].product_id,
+                    arguments: newProductList[0].product_id,
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -515,18 +520,52 @@ class _HomeState extends State<Home> {
     // ];
 
     return SizedBox(
-      height: 130,
+      // 여기가 전체제품 나오는데
+      height: 160, // Image(aspect square) + Text height
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
+        itemCount: productList.length,
         separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final item = categories[index];
+          final item = productList[index];
           return GestureDetector(
-            onTap: () => Get.to(() => SearchResultPage(query: item['title']!)),
-            child: RelativePositionedTile(
-              title: item['title']!,
-              image: item['image']!,
+            onTap: () => Get.to(
+              () => ProductDetail(),
+              arguments: item.product_id,
+            ), //=> _navigateToDetail(item),
+            child: SizedBox(
+              width: 110, // Approx 1/3 of screen width
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey[100],
+                        image: DecorationImage(
+                          image: NetworkImage(item.mainImageUrl!),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.product_name!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    item.gender != null ? '${item.gender}신발' : '신발',
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
+                ],
+              ),
             ),
           );
         },

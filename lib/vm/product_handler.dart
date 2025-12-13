@@ -3,19 +3,32 @@ import 'package:shoes_store_app_project/util/initialize.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ProductHandler {
+  // 전체제품
   Future<List<Product>> selectQuery(int id) async {
     Database db = await Initialize.initDatabase();
-    // 최신제품
     final data = await db.rawQuery("""
-      select products.*,productCategories.category_name,manufactures.manufacture_name from products 
-      inner join manufactures on products.manufacture_id = manufactures.manufacture_id
-      inner join productCategories on productCategories.category_id=products.category_id
-      order by products.product_released_date desc
-
+      select p.* from products p
+      join(select product_name, product_color, max(product_id) as max_id
+            from products group by product_name, product_color) x
+      on p.product_id = x.max_id
+      order by p.product_released_date desc
       """);
-
     return data.map((data) => Product.fromMap(data)).toList();
   }
+
+  // Future<List<Product>> selectQuery(int id) async {
+  //   Database db = await Initialize.initDatabase();
+  //   // 전체제품
+  //   final data = await db.rawQuery("""
+  //     select products.*,productCategories.category_name,manufactures.manufacture_name from products
+  //     inner join manufactures on products.manufacture_id = manufactures.manufacture_id
+  //     inner join productCategories on productCategories.category_id=products.category_id
+  //     order by products.product_released_date desc
+
+  //     """);
+
+  //   return data.map((data) => Product.fromMap(data)).toList();
+  // }
 
   // 상품 1개 정보가져오기
   Future<List<Product>> selectQueryById(int id) async {
@@ -123,23 +136,24 @@ class ProductHandler {
     // like 검색 (대소문자/공백까지 느슨하게 하려면 query 가공 가능)
     final String q = "%${query.trim()}%";
 
-    // // 여기에 product_image 넣으면 나옴
-    // final result = await db.rawQuery("""
-    //   SELECT product_id, product_name, product_price, product_
-    //   FROM products
-    //   WHERE product_name LIKE ?
-    //   ORDER BY created_at DESC
-    // """, [q]);
-
     final data = await db.rawQuery(
+      // 중복안뜨게 + 제조사이름적어도 뜨게 수정
       """
-      select products.*,productCategories.category_name,manufactures.manufacture_name from products 
-      inner join manufactures on products.manufacture_id = manufactures.manufacture_id
-      inner join productCategories on productCategories.category_id=products.category_id
-      where products.product_name like ? or productCategories.category_name like ?
-      order by products.product_released_date desc
+      SELECT p.*,
+           pc.category_name,
+           m.manufacture_name
+      FROM products p
+      JOIN (
+        SELECT product_name, product_color, MAX(product_id) AS max_id
+        FROM products
+        GROUP BY product_name, product_color
+      ) x ON p.product_id = x.max_id
+      JOIN manufactures m ON p.manufacture_id = m.manufacture_id
+      JOIN productCategories pc ON pc.category_id = p.category_id
+      WHERE p.product_name LIKE ? OR pc.category_name LIKE ?  OR m.manufacture_name LIKE ?
+      ORDER BY p.product_released_date DESC
       """,
-      [q, q],
+      [q, q, q],
     );
 
     return data.map((data) => Product.fromMap(data)).toList();

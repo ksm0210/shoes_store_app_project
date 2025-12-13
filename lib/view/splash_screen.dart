@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    initData();
+    // initData();
     // 2초 후 로그인 화면으로 이동
     Future.delayed(const Duration(seconds: 2), () {
       // 2. '/login' 문자열 경로 대신 클래스로 직접 이동하게 수정
