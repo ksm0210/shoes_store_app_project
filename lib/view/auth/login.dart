@@ -224,7 +224,7 @@ class _LoginState extends State<Login> {
                       '...',
                       style: TextStyle(
                         fontSize: 25,
-                        color: Colors.grey.withAlpha(value),
+                        color: Colors.black.withAlpha(value),
                       ),
                     ),
                   ),
