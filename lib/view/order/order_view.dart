@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/customer.dart';
@@ -42,6 +44,7 @@ class _OrderViewState extends State<OrderView> {
 
   late List<Order> orders = [];
   late List<Store> storeList = [];
+  late Map<int, double> storeDistKm; // store_id -> km
   final CartController controller = Get.find<CartController>();
   // late List<Order> orderList=[];
 
@@ -54,6 +57,7 @@ class _OrderViewState extends State<OrderView> {
   @override
   void initState() {
     super.initState();
+    storeDistKm = {};
     shopcartHandler = ShopcartHandler();
     _selectedPaymentMethod = '';
     _paymentMethod = [];
@@ -68,11 +72,39 @@ class _OrderViewState extends State<OrderView> {
       orders = [];
     }
     getData();
+    getDistance();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  // 매장 불러오고 거리 계산 + 정렬
+  getDistance() async {
+    storeList = await storeHandler.selectAllStores();
+
+    final myLat = GlobalLoginData.customer_location[0];
+    final myLng = GlobalLoginData.customer_location[1];
+
+    storeDistKm.clear();
+    for (final s in storeList) {
+      final lat = s.store_lat;
+      final lng = s.store_lng;
+
+      if (lat == null || lng == null) continue;
+
+      storeDistKm[s.store_id!] = _distanceKm(myLat, myLng, lat, lng);
+    }
+
+    // 가까운 순 정렬(원하면)
+    storeList.sort((a, b) {
+      final da = storeDistKm[a.store_id] ?? 999999;
+      final db = storeDistKm[b.store_id] ?? 999999;
+      return da.compareTo(db);
+    });
+
+    setState(() {});
   }
 
   getData() async {
@@ -148,6 +180,9 @@ class _OrderViewState extends State<OrderView> {
                         child: ListView.builder(
                           itemCount: storeList.length,
                           itemBuilder: (context, index) {
+                            final store = storeList[index];
+                            final km = storeDistKm[store.store_id] ?? -1;
+                            final distText = km < 0 ? '거리 정보 없음' : _fmtDist(km);
                             return GestureDetector(
                               onTap: () {
                                 storeId = storeList[index].store_id;
@@ -183,8 +218,27 @@ class _OrderViewState extends State<OrderView> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              '${storeList[index].store_name}',
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '${storeList[index].store_name}',
+                                                ),
+                                                Expanded(
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: Text(
+                                                      '$distText',
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                             Text(
                                               '${storeList[index].store_address}',
@@ -318,6 +372,27 @@ class _OrderViewState extends State<OrderView> {
   }
 
   // == Functions
+  // 거리 계산 함수(지도의 거리)
+  double _distanceKm(double lat1, double lon1, double lat2, double lon2) {
+    const r = 6371.0; // 지구 반지름 km
+    double d2r(double d) => d * (pi / 180.0);
+
+    final dLat = d2r(lat2 - lat1);
+    final dLon = d2r(lon2 - lon1);
+
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
+        cos(d2r(lat1)) * cos(d2r(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+
+    final c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return r * c;
+  }
+
+  String _fmtDist(double km) {
+    if (km < 1) return '${(km * 1000).round()}m';
+    return '${km.toStringAsFixed(1)}km';
+  }
+
   // 주문 dialog
   submitOrder() async {
     // int result = await orderHandler.insert(orders[0]);
@@ -509,8 +584,3 @@ class _OrderViewState extends State<OrderView> {
     return "";
   }
 }
-
-// if (_selectedPaymentMethod == null) {
-//   Get.snackbar("경고", "결제 수단을 선택해주세요.");
-//   return;
-// }

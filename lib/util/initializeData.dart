@@ -28,7 +28,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '신촌로 83 현대백화점 신촌점 유플렉스 10F 서대문구',
+      store_address: '신촌로 83 현대백화점 신촌점',
       store_phone: '02-3145-2631',
       store_name: '서대문역 ',
       store_zipcode: '03789',
@@ -72,7 +72,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '올림픽로 240 롯데백화점 잠실점 7층 송파구',
+      store_address: '올림픽로 240 롯데백화점 잠실점',
       store_phone: '02-2143-7569',
       store_name: '잠실역',
       store_zipcode: '05554',
