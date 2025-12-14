@@ -2,15 +2,53 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/view/user/user_order_history.dart';
 import 'package:shoes_store_app_project/view/user/user_wish_view.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
+
+class OrderController extends GetxController {
+  final customerhandler = CustomerHandler();
+
+  // 화면에서 바로 쓸 상태값
+  final RxString userName = ''.obs;
+  final RxString userEmail = ''.obs;
+  final RxBool isLoading = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    getData();
+  }
+
+  Future<void> getData() async {
+    try {
+      isLoading.value = true;
+
+      // 예: 현재 로그인한 고객 id로 1명만 가져오기 (이게 제일 깔끔)
+      // 너 프로젝트에 맞게 selectQueryById 같은 걸 쓰는 걸 추천
+      final customerId = GlobalLoginData.customer_id;
+      final customer = await customerhandler.selectQuery(); // ✅ 함수 필요
+
+      userName.value = customer[0].customer_name;
+      userEmail.value = customer[0].customer_email;
+    } catch (e) {
+      // 실패하면 기본값
+      userName.value = 'Stitch User';
+      userEmail.value = 'user@stitch.com';
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}
 
 class UserInfo extends StatelessWidget {
   const UserInfo({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Property
+    final controller = Get.put(OrderController());
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -27,7 +65,7 @@ class UserInfo extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
             // 프로필 영역
-            const Center(
+            Center(
               child: Column(
                 children: [
                   CircleAvatar(
@@ -37,10 +75,13 @@ class UserInfo extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    "Stitch User",
+                    controller.userName.value,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  Text("user@stitch.com", style: TextStyle(color: Colors.grey)),
+                  Text(
+                    controller.userEmail.value,
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ],
               ),
             ),
