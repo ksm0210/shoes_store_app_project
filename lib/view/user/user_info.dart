@@ -1,18 +1,22 @@
 // my_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_store_app_project/view/user/user_order_history.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
 
 class UserInfo extends StatelessWidget {
   const UserInfo({super.key});
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("마이페이지", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text(
+          "마이페이지",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -31,27 +35,36 @@ class UserInfo extends StatelessWidget {
                     child: Icon(Icons.person, size: 40, color: Colors.grey),
                   ),
                   SizedBox(height: 12),
-                  Text("Stitch User", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(
+                    "Stitch User",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                   Text("user@stitch.com", style: TextStyle(color: Colors.grey)),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 30),
             const Divider(thickness: 8, color: Color(0xFFF8FAFC)),
 
             // 메뉴 리스트
-            _buildMenuItem(Icons.shopping_bag_outlined, "주문 내역"),
+            _buildMenuItem(
+              Icons.shopping_bag_outlined,
+              "주문 내역",
+              onTap: () {
+                Get.to(OrderHistoryView());
+              },
+            ),
             _buildMenuItem(Icons.favorite_border, "위시리스트"),
             _buildMenuItem(Icons.receipt_long_outlined, "구매내역"),
-            
+
             const Divider(thickness: 8, color: Color(0xFFF8FAFC)),
-            
+
             _buildMenuItem(Icons.location_on_outlined, "배송지 관리"),
             _buildMenuItem(Icons.credit_card, "결제 수단 관리"),
-            
+
             const Divider(thickness: 8, color: Color(0xFFF8FAFC)),
-            
+
             _buildMenuItem(Icons.settings_outlined, "설정"),
             _buildMenuItem(Icons.help_outline, "고객센터"),
           ],
@@ -60,12 +73,12 @@ class UserInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title) {
+  Widget _buildMenuItem(IconData icon, String title, {VoidCallback? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Colors.black, size: 24),
       title: Text(title, style: const TextStyle(fontSize: 16)),
       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

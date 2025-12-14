@@ -662,7 +662,7 @@ class _ProductDetailState extends State<ProductDetail> {
         "name": "블레이저 미드",
         "price": "₩119,000",
         "img":
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuD8O5geREbmF5TU6MkgwBpw0ieMgKWydv4cI5ZSnCemRtcRLp5rRZju_Z2p2oLDWssRPeVgtdPYCT_C15rpkGw3ZGSfiYLg7VjnXhyoxBbc4v9n662fb_ngeeHMUm8qtfoO2ftxhX2xtDbwjk8BvGHNScYdtUviV7zr3nTgIEC6sK5AySg3v3Hg1o9mj2hp7UNrk5crwQl1fZxgPS3JWiScylvPXldbBryeBx_4Kzn-c1rE0XV7OBm9h2AYTQhPF3VCYAfi7tYhe2A",
+            "https://kream-phinf.pstatic.net/MjAyMDEwMjJfOTAg/MDAxNjAzMzMzOTUxMDA1.bOJymr5uzMrQ2Cj_Aqrt1NaMCavrz2I1qnovubaoGxYg.rzuR3QeGruP4Zppwd2_mlcFH5qMVEXarZ1FEkXFE--Ag.PNG/p_19795_0_222cc7bf0acb485ab5d2f2bf47fbee2c.png?type=l_webp",
       },
     ];
 

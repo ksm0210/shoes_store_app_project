@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              "STITCH DESIGN",
+              "ShoesHouse",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 32,
