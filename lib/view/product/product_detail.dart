@@ -160,8 +160,7 @@ class _ProductDetailState extends State<ProductDetail> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          product!.product_price
-                              .toString(), //widget.price, // 넘겨받은 price 사용
+                          '₩${product!.product_price.toString()}', //widget.price, // 넘겨받은 price 사용
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
