@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // 경로를 그대로 사용합니다.
 import 'package:shoes_store_app_project/util/controllers.dart';
+import 'package:shoes_store_app_project/view/order/order_view.dart';
 import 'package:shoes_store_app_project/vm/shopcart_handler.dart';
 
 class ShoppingCartView extends StatelessWidget {
@@ -163,6 +164,7 @@ class ShoppingCartView extends StatelessWidget {
                         "총 ${totalFormatted}원 결제 페이지로 이동합니다.",
                         snackPosition: SnackPosition.BOTTOM,
                       );
+                      Get.to(OrderView());
                     } else {
                       Get.snackbar(
                         "알림",

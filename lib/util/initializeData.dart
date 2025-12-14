@@ -17,7 +17,7 @@ initializeData() async {
   StoreHandler storeHandler = StoreHandler();
   await storeHandler.insert(
     Store(
-      store_address: '동대문역',
+      store_address: '왕십리광장로17 1층 성동구',
       store_phone: '02-511-4080',
       store_name: '동대문역',
       store_zipcode: '831',
@@ -28,7 +28,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '서대문역 ',
+      store_address: '신촌로 83 현대백화점 신촌점 유플렉스 10F 서대문구',
       store_phone: '02-3145-2631',
       store_name: '서대문역 ',
       store_zipcode: '03789',
@@ -39,7 +39,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '홍대입구역',
+      store_address: '양화로 161 1층 마포구',
       store_phone: '02-336-2094',
       store_name: '홍대입구역',
       store_zipcode: '03995',
@@ -50,7 +50,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '강남역',
+      store_address: '선릉로 831 강남구',
       store_phone: '02-511-4080',
       store_name: '강남역',
       store_zipcode: '06018',
@@ -61,7 +61,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '명동역',
+      store_address: '명동길 14 눈스퀘어 1층 중구',
       store_phone: '02-3783-4401',
       store_name: '명동역',
       store_zipcode: '04536',
@@ -72,7 +72,7 @@ initializeData() async {
   );
   await storeHandler.insert(
     Store(
-      store_address: '잠실역',
+      store_address: '올림픽로 240 롯데백화점 잠실점 7층 송파구',
       store_phone: '02-2143-7569',
       store_name: '잠실역',
       store_zipcode: '05554',
@@ -368,90 +368,6 @@ initializeData() async {
       );
     }
   }
-  await productHandler.insert(
-    Product(
-      store_id: 1,
-      manufacture_id: 1,
-      category_id: 1,
-      product_name: '에어 조던',
-      product_color: 'green',
-      product_size: 270,
-      gender: '남성',
-      product_price: 150000,
-      product_description:
-          '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.',
-      product_quantity: 10,
-      mainImageUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuDpON7VqeimHWNLI8BpsZ9Y-hdvZG7u0bMyzKuJdc-peEtlDNEEFdDgJsYlG-0ff2exA6lqoBzSB6XSjwrgoLVsdx0626XQjp8N8rjDq5DDeVeH-1ycJKeHN3Nm1UMvhSJ-kImWboyzIZdbK4xX93L1xVQyr1dRmSC_7fHftIjE-Ia0sgQduae4idKGcvvQ4tsR0wdPGbWBz2TDMOvVI4AorfQXXH2XrStY8udjRoG7Ukvzv3Ifhf0jrvKhH9-r7gj7-UXzsIHI2_o',
-      sub1ImageUrl: '',
-      sub2ImageUrl: '',
-      created_at: DateTime.now(),
-      product_released_date: DateTime.now(),
-    ),
-  );
-  await productHandler.insert(
-    Product(
-      store_id: 1,
-      manufacture_id: 2,
-      category_id: 2,
-      product_name: '에어 맥스 90',
-      product_color: 'green',
-      product_size: 270,
-      product_price: 170000,
-      product_quantity: 15,
-      product_description:
-          '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.',
-      gender: '여성',
-      mainImageUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuDHdQ1ILK_dUdEh8XOt6ViOw16Hab9Oc0UaFIxMFrWsQMa78xaiFWexjQJV__ym7gr_q6ifzRDPkvgJafjCRXxYSBarIcfbmFUYzhf1YQzTdish8OTP7LTwHODxHRni5TUks-RD8A-thv73eLbEzCOOJxhsQzIKxevRYsVPuvUavNGsycBFNhpFEpFra4FrxuH-UfgMogp5rIAUdpVjqAJQtps74W5ND9msWtNiF-vAVscFG6yhHsU9Dh96OtnZR6tIsV5dZdt3ye4',
-      sub1ImageUrl: '',
-      sub2ImageUrl: '',
-      created_at: DateTime.now(),
-      product_released_date: DateTime.now(),
-    ),
-  );
-  await productHandler.insert(
-    Product(
-      store_id: 1,
-      manufacture_id: 1,
-      category_id: 1,
-      product_name: '에어 포스1',
-      product_color: 'white',
-      product_size: 275,
-      product_price: 160000,
-      product_quantity: 10,
-      gender: '남성',
-      product_description:
-          '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.',
-
-      mainImageUrl:
-          'https://lh3.googleusercontent.com/aida-public/AB6AXuA5TAFbKthcnj0ocsMMjbiUmYNKoCdlQcOFVqwqiC4J4N4ARFiealFz7uZ-9h683p_PcG3Tla2CmnavgRpHIw_2qEbY5bC20QsVzEk0lKov_X2eI9cM5dX-whZYKdEPkMXqRCGLD-yrLdTR52MftHTJXR4bphU-5uiwWT-FQBDvIeMT5VhnfhhxCYy-JKG7gVnAP015l9uPUSv-3Uxn-_yxTouAUjZM1_uDZ6O_QoTXCDIdof7tYvoaYSG5jO_jWymPcOPUQhJtCrk',
-      sub1ImageUrl: '',
-      sub2ImageUrl: '',
-      created_at: DateTime.now(),
-      product_released_date: DateTime.now(),
-    ),
-  );
-  await productHandler.insert(
-    Product(
-      store_id: 1,
-      manufacture_id: 1,
-      category_id: 1,
-      product_name: '에어 맥스 270',
-      product_color: 'red',
-      gender: '여성',
-      product_size: 265,
-      product_price: 128000,
-      product_quantity: 5,
-      product_description:
-          '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.',
-
-      mainImageUrl:
-          'https://static.nike.com/a/images/t_web_pdp_535_v2/f_auto/ee7dcded-2ccf-4a8d-bbaa-91c250873e4b/PEGASUS+PLUS.png',
-      created_at: DateTime.now(),
-      product_released_date: DateTime.now(),
-    ),
-  );
   //     List<Product> list =  await productHandler.selectQuery(1);
   // for(Product p in list){
   //   print('${p.product_name}');
