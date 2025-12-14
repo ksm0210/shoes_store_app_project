@@ -275,7 +275,7 @@ initializeData() async {
           store_id: 1,
           manufacture_id: 1,
           category_id: 1,
-          product_name: '에어조던',
+          product_name: '샥스',
           product_color: shox_color[j],
           product_size: randomShoeSize(),
           mainImageUrl: images[4][j],

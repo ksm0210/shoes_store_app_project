@@ -274,14 +274,38 @@ class _OrderViewState extends State<OrderView> {
                     ),
                   ],
                 ),
-
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () => submitOrder(),
-                      child: Text('결제하기'),
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xFF111111), Color(0xFF3A3A3A)],
+                        ),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () => submitOrder(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          '결제하기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
