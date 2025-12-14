@@ -1,6 +1,10 @@
+// login.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'main_screen.dart'; // 메인 스크린과 연결 (이 파일이 있어야 함)
+import 'main_screen.dart'; 
+// 🚨 관리자 로그인 스크린 임포트 (경로를 맞게 수정하세요)
+import '../admin/admin_login.dart'; 
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -31,7 +35,7 @@ class _LoginState extends State<Login> {
     String id = idController.text;
     String pw = pwdController.text;
 
-    // 간단한 로그인 로직
+    // 일반 사용자 로그인 로직
     if (id == "customer" && pw == "1234") {
       Get.snackbar(
         "로그인 성공",
@@ -50,6 +54,15 @@ class _LoginState extends State<Login> {
         colorText: Colors.white,
       );
     }
+  }
+  
+  // 🚨 관리자 로그인 페이지로 이동하는 함수
+  void _goToAdminLogin() {
+    // 관리자 로그인 화면으로 이동
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AdminLoginScreen()),
+    );
   }
 
   @override
@@ -106,6 +119,19 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(height: 30),
+                
+                // 🚨 관리자 모드 이동 버튼 추가
+                TextButton(
+                  onPressed: _goToAdminLogin,
+                  child: const Text(
+                    "관리자이신가요?",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
