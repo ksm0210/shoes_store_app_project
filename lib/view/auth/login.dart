@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:shoes_store_app_project/model/customer.dart';
 import 'package:shoes_store_app_project/util/controllers.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
+import 'package:shoes_store_app_project/view/admin/admin_login.dart';
 import 'package:shoes_store_app_project/view/auth/signup.dart';
 import 'package:shoes_store_app_project/view/home.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
@@ -198,7 +199,7 @@ class _LoginState extends State<Login> {
                   visible: manager2Visible,
                   child: TextButton(
                     onPressed: () {
-                      // 관리자 웹으로넘어가는곳
+                      Get.to(AdminLoginScreen());
                     },
                     child: Text(
                       '관리자이신가요?',
