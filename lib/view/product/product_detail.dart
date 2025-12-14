@@ -4,31 +4,17 @@ import 'package:shoes_store_app_project/model/order.dart';
 import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/model/review.dart';
 import 'package:shoes_store_app_project/model/shopping_cart.dart';
+import 'package:shoes_store_app_project/model/wish.dart';
 import 'package:shoes_store_app_project/util/controllers.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
 import 'package:shoes_store_app_project/view/order/order_view.dart';
 import 'package:shoes_store_app_project/view/order/shopping_cart.dart';
 import 'package:shoes_store_app_project/vm/product_handler.dart';
 import 'package:shoes_store_app_project/vm/review_handler.dart';
+import 'package:shoes_store_app_project/vm/wish_handler.dart';
 
 // DetailView의 생성자 정보를 반영하여 DetailScreen을 수정합니다.
 class ProductDetail extends StatefulWidget {
-  // main_screen에서 넘겨주는 데이터들
-  // final String title;
-  // final String subtitle;
-  // final String price;
-  // final String imageUrl;
-  // final String description; // 이건 선택사항 (기본값 있음)
-
-  // const ProductDetail({
-  //   super.key,
-  //   required this.title,
-  //   required this.subtitle,
-  //   required this.price,
-  //   required this.imageUrl,
-  //   this.description = "이 제품은 뛰어난 쿠셔닝과 세련된 디자인을 자랑합니다. 일상 생활과 스포츠 활동 모두에 적합하며, 편안한 착화감을 제공합니다.",
-  // });
-
   @override
   State<ProductDetail> createState() => _ProductDetailState();
 }
@@ -40,7 +26,7 @@ class _ProductDetailState extends State<ProductDetail> {
   // 상태 관리 변수들
   int _currentImageIndex = 0;
   int _selectedColorIndex = 0;
-  bool _isLiked = false;
+  bool _isLiked = false; // wish controller
 
   // A1: 선택 가능한 사이즈 목록 (220부터 290까지 5단위)
   final List<String> _availableSizes = [
@@ -56,6 +42,7 @@ class _ProductDetailState extends State<ProductDetail> {
   late Product? product = null;
   ProductHandler productHandler = ProductHandler();
   ReviewHandler reviewHandler = ReviewHandler();
+  WishHandler wishHandler = WishHandler();
   int product_id = Get.arguments ?? 0;
 
   List<Review> reviewList = [];
@@ -79,6 +66,7 @@ class _ProductDetailState extends State<ProductDetail> {
     sizeStock = {};
     // 넘겨받은 imageUrl을 첫 번째 이미지로 설정 (다른 색상 더미는 유지)
     getData(product_id);
+    _loadWishState();
   }
 
   getData(int id) async {
@@ -108,6 +96,19 @@ class _ProductDetailState extends State<ProductDetail> {
 
       setState(() {});
     }
+  }
+
+  void _loadWishState() async {
+    final liked = await wishHandler.exists(
+      GlobalLoginData.customer_id,
+      product_id,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLiked = liked;
+    });
   }
 
   @override
@@ -579,7 +580,21 @@ class _ProductDetailState extends State<ProductDetail> {
               width: 56, // 위시리스트 버튼은 동그랗거나 작게
               height: 56, // 높이 맞춤
               child: OutlinedButton(
-                onPressed: () {
+                onPressed: () async {
+                  if (_isLiked) {
+                    await wishHandler.deleteWish(
+                      GlobalLoginData.customer_id,
+                      product_id,
+                    );
+                  } else {
+                    await wishHandler.insert(
+                      Wish(
+                        customer_id: GlobalLoginData.customer_id,
+                        product_id: product_id,
+                        created_at: DateTime.now(),
+                      ),
+                    );
+                  }
                   setState(() {
                     _isLiked = !_isLiked;
                   });

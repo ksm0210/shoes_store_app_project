@@ -4,6 +4,7 @@ import 'package:shoes_store_app_project/model/product.dart';
 import 'package:shoes_store_app_project/model/product_category.dart';
 import 'package:shoes_store_app_project/util/controllers.dart';
 import 'package:shoes_store_app_project/util/global_login_data.dart';
+import 'package:shoes_store_app_project/view/category/category_view.dart';
 import 'package:shoes_store_app_project/view/order/shopping_cart.dart';
 import 'package:shoes_store_app_project/view/product/product_detail.dart';
 import 'package:shoes_store_app_project/view/search/search_result.dart';
@@ -56,6 +57,8 @@ class _HomeState extends State<Home> {
     } else if (index == 2) {
       // 검색 (인덱스 2)
       _showSearchBottomSheet();
+    } else if (index == 1) {
+      Get.to(CategoryView());
     } else {
       // 다른 탭
       setState(() {

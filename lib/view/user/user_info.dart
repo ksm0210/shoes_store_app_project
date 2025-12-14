@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_store_app_project/view/user/user_order_history.dart';
+import 'package:shoes_store_app_project/view/user/user_wish_view.dart';
 import 'package:shoes_store_app_project/vm/customer_handler.dart';
 
 class UserInfo extends StatelessWidget {
@@ -51,11 +52,13 @@ class UserInfo extends StatelessWidget {
             _buildMenuItem(
               Icons.shopping_bag_outlined,
               "주문 내역",
-              onTap: () {
-                Get.to(OrderHistoryView());
-              },
+              onTap: () => Get.to(OrderHistoryView()),
             ),
-            _buildMenuItem(Icons.favorite_border, "위시리스트"),
+            _buildMenuItem(
+              Icons.favorite_border,
+              "위시리스트",
+              onTap: () => Get.to(UserWishView()),
+            ),
             _buildMenuItem(Icons.receipt_long_outlined, "구매내역"),
 
             const Divider(thickness: 8, color: Color(0xFFF8FAFC)),

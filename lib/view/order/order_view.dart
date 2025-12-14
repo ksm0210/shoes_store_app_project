@@ -414,19 +414,70 @@ class _OrderViewState extends State<OrderView> {
     }
 
     if (okCount == orders.length) {
-      Get.defaultDialog(
-        title: '주문하신 오더가 정상적으로 SUBMIT됬습니다.',
-        content: Text('주문 해 주셔서 감사합니다'),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Get.offAll(
-                () => const Home(),
-              ); // 바로 Home으로 새로 보내버리기(인기제품 setstate때문에)
-            },
-            child: Text('확인'),
+      Get.dialog(
+        Center(
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF64748B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 32),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '주문이 완료되었습니다',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  '픽업 준비가 시작되면 알려드릴게요',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.offAll(() => const Home());
+                    }, // 바로 Home으로 새로 보내버리기(인기제품 setstate때문에)
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF212121),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text(
+                      '확인',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
+        barrierDismissible: false,
       );
     } else {
       Get.snackbar('죄송합니다. 주문에 실패했습니다.', '주문에 실패했습니다. 다시 시도해 보세요.');
