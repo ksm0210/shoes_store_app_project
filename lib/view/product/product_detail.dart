@@ -506,22 +506,57 @@ class _ProductDetailState extends State<ProductDetail> {
               child: SizedBox(
                 height: 56,
                 child: OutlinedButton(
-                  onPressed: () => Get.to(
-                    () => OrderView(),
-                    arguments: [
-                      Order(
-                        customer_id: GlobalLoginData.customer_id,
-                        product_id: product_id,
-                        product_name: product!.product_name,
-                        order_store_id: product!.store_id,
-                        order_quantity: 1,
-                        order_total_price: product!.product_price,
-                        order_status: '요청',
-                        product_mainImageUrl: product!.mainImageUrl,
-                        created_at: DateTime.now(),
-                      ),
-                    ],
-                  ),
+                  onPressed: () async {
+                    if (_selectedSize == null) {
+                      Get.snackbar(
+                        "경고",
+                        "사이즈를 선택해주세요",
+                        snackPosition: SnackPosition.TOP,
+                      );
+                      return;
+                    }
+                    final selectedSizeInt = int.tryParse(_selectedSize!) ?? 0;
+                    final stock = sizeStock[selectedSizeInt] ?? 0;
+
+                    if (stock <= 0) {
+                      Get.snackbar(
+                        "경고",
+                        "품절된 사이즈입니다",
+                        snackPosition: SnackPosition.TOP,
+                      );
+                      return;
+                    }
+                    final variantId = await productHandler.findVariantProductId(
+                      productName: product!.product_name,
+                      productColor: product!.product_color,
+                      productSize: selectedSizeInt,
+                    );
+
+                    if (variantId == null) {
+                      Get.snackbar(
+                        "오류",
+                        "해당 사이즈 상품을 찾을 수 없습니다",
+                        snackPosition: SnackPosition.TOP,
+                      );
+                      return;
+                    }
+                    Get.to(
+                      OrderView(),
+                      arguments: [
+                        Order(
+                          customer_id: GlobalLoginData.customer_id,
+                          product_id: variantId,
+                          order_store_id: 0,
+                          product_name: product!.product_name,
+                          order_quantity: 1,
+                          order_total_price: product!.product_price,
+                          order_status: '요청',
+                          product_mainImageUrl: product!.mainImageUrl,
+                          created_at: DateTime.now(),
+                        ),
+                      ],
+                    );
+                  },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.grey.shade300),
                     shape: RoundedRectangleBorder(
