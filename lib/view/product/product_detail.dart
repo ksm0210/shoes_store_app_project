@@ -780,11 +780,11 @@ class _ProductDetailState extends State<ProductDetail> {
           ),
         ),
 
-        // _buildRatingBar(5, 0.5),
-        // _buildRatingBar(4, 0.3),
-        // _buildRatingBar(3, 0.1),
-        // _buildRatingBar(2, 0.05),
-        // _buildRatingBar(1, 0.05),
+        _buildRatingBar(5, 0.5),
+        _buildRatingBar(4, 0.3),
+        _buildRatingBar(3, 0.1),
+        _buildRatingBar(2, 0.05),
+        _buildRatingBar(1, 0.05),
         const SizedBox(height: 30),
         Text(
           "리뷰 (${rateReport['totalCount']})",
@@ -794,8 +794,18 @@ class _ProductDetailState extends State<ProductDetail> {
 
         // 개별 리뷰 아이템
         Column(children: _buildReview()),
-        // _buildReviewItem("지우", "2023년 10월 26일", 5, "정말 편하고 디자인도 예뻐요! 매일 신고 다닙니다."),
-        // _buildReviewItem("민준", "2023년 10월 20일", 4, "사이즈가 조금 크게 나온 것 같아요. 그래도 만족합니다."),
+        _buildReviewItem(
+          "지우",
+          "2023년 10월 26일",
+          5,
+          "정말 편하고 디자인도 예뻐요! 매일 신고 다닙니다.",
+        ),
+        _buildReviewItem(
+          "민준",
+          "2023년 10월 20일",
+          4,
+          "사이즈가 조금 크게 나온 것 같아요. 그래도 만족합니다.",
+        ),
       ],
     );
   }
