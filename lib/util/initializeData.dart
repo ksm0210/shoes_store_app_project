@@ -17,23 +17,67 @@ initializeData() async {
   StoreHandler storeHandler = StoreHandler();
   await storeHandler.insert(
     Store(
-      store_address: '강남역',
-      store_phone: '111-222-3333',
-      store_name: '강남역 본점',
-      store_zipcode: '123',
-      store_lat: 37.498,
-      store_lng: 127.027,
+      store_address: '동대문역',
+      store_phone: '02-511-4080',
+      store_name: '동대문역',
+      store_zipcode: '831',
+      store_lat: 37.57056,
+      store_lng: 127.00833,
       created_at: DateTime.now(),
     ),
   );
   await storeHandler.insert(
     Store(
-      store_address: '삼성역',
-      store_phone: '444-555-6666',
-      store_name: '삼성역점',
-      store_zipcode: '345',
-      store_lat: 37.5085951,
-      store_lng: 127.0585787,
+      store_address: '서대문역 ',
+      store_phone: '02-3145-2631',
+      store_name: '서대문역 ',
+      store_zipcode: '03789',
+      store_lat: 37.5658,
+      store_lng: 126.9667,
+      created_at: DateTime.now(),
+    ),
+  );
+  await storeHandler.insert(
+    Store(
+      store_address: '홍대입구역',
+      store_phone: '02-336-2094',
+      store_name: '홍대입구역',
+      store_zipcode: '03995',
+      store_lat: 37.55607,
+      store_lng: 126.92361,
+      created_at: DateTime.now(),
+    ),
+  );
+  await storeHandler.insert(
+    Store(
+      store_address: '강남역',
+      store_phone: '02-511-4080',
+      store_name: '강남역',
+      store_zipcode: '06018',
+      store_lat: 37.49794,
+      store_lng: 127.02762,
+      created_at: DateTime.now(),
+    ),
+  );
+  await storeHandler.insert(
+    Store(
+      store_address: '명동역',
+      store_phone: '02-3783-4401',
+      store_name: '명동역',
+      store_zipcode: '04536',
+      store_lat: 37.56083,
+      store_lng: 126.98667,
+      created_at: DateTime.now(),
+    ),
+  );
+  await storeHandler.insert(
+    Store(
+      store_address: '잠실역',
+      store_phone: '02-2143-7569',
+      store_name: '잠실역',
+      store_zipcode: '05554',
+      store_lat: 37.5133,
+      store_lng: 127.10027,
       created_at: DateTime.now(),
     ),
   );
